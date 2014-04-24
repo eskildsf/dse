@@ -1,0 +1,26 @@
+{% extends 'questionnaire/layout.html' %}
+{% block contents %}
+{% if user.is_authenticated %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript"> 
+<!--
+$(document).keydown(function(event){
+     if ( event.keyCode == 13 && event.ctrlKey ) {
+                 $("form input:text").val("test");
+                 $("form textarea").val("test");
+                 $("form input:radio:first-child").attr("checked", true);
+                 $("form input:checkbox").attr("checked", true);
+                 $("#id_participant_phone").val("");
+         }});
+-->
+</script>
+{% endif %}
+<div id="page">
+<h1>{{ name }}</h1>
+{{ introduction }}
+<form action="" method="post">{% csrf_token %}
+{{ form.as_p }}
+<p><button type="submit">OK</button></p>
+</form>
+</div>
+{% endblock %}

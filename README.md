@@ -1,4 +1,4 @@
 dse
 ===
 
-Small projects for DSE
+Personal projects for DSE. Information can be seen in the Wiki.

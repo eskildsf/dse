@@ -1,0 +1,17 @@
+{% extends "jobbank/layout.html" %}
+{% block contents %}
+<body onload='document.getElementById("num").focus();'>
+<div id="page">
+<h1>Jobbank</h1>
+<p>Here you can print a job advert by entering advert number.</p>
+<form autocomplete="off" method="post" action="{% url 'jobbank:index' %}">{% csrf_token %}
+<p>Advert number:
+<input type="text" size="5" name="id" id="num" autofocus="autofocus" />
+<button type="submit">Print</button>
+</p>
+</form>
+{% if error %}
+<p style='font-weight:bold;'>{{ error }}</p>
+{% endif %}
+</div></body>
+{% endblock %}

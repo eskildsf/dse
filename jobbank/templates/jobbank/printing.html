@@ -1,0 +1,13 @@
+{% extends "jobbank/layout.html" %}
+{% load staticfiles %}
+{% block contents %}
+<meta http-equiv="refresh" content="10; url={% url 'jobbank:index' %}" />
+<body>
+<div id="page">
+<h1>Jobbank</h1>
+<p>Printing job advert {{ jobId }}</p>
+<p><img src="{% static 'jobbank/throbber.gif' %}" alt="Printing..." /></p>
+<p>If the advert fails to print, please contact the nearest DSE staff.</p>
+</div></body>
+{% endblock %}
+

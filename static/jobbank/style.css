@@ -1,0 +1,46 @@
+html {
+    background: url(background2014.svg) bottom right;
+    color: #000;
+    font: 11pt Calibri;
+    height: 100%;
+}
+
+body {
+    width: 360px;
+    background: rgba(255, 255, 255, .5);
+    -moz-border-radius: 20px;
+    margin: 150px auto 0 auto;
+    padding: 0;
+}
+
+#page {
+    padding: 15px 30px 15px 30px;
+}
+
+h1 {
+    font-family: "Cambria", serif;  
+    font-size: 20pt;  
+    color: #17365D;  
+    margin: 0px 0 15px 0; 
+    padding: 0; 
+}
+
+h2 {
+    font-size: 11pt;
+    margin: 2em 0 0.2em 0;
+}
+
+.KFFText, textarea {
+    width: 100%;
+}
+
+input {
+    position: relative;
+    top: -1px;
+}
+
+button {
+    width: 80px;
+    height: 25px;
+}
+

@@ -4,7 +4,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.conf.urls import patterns, url
 from django.contrib.admin import SimpleListFilter
-
+from django.contrib.admin.actions import delete_selected
+from admin_buttons import ButtonAdmin
 import math, datetime
 
 class SlidegroupInline(admin.TabularInline):
@@ -123,7 +124,14 @@ class LevelFilter(SimpleListFilter):
         if self.value() in ['10', '20', '30', '40',]:
             return queryset.filter(levelno__gte = self.value())
 
-class DeviceLogAdmin(admin.ModelAdmin):
+class DeviceLogAdmin(ButtonAdmin):
+    model = DeviceLog
+    def clearLogs(self, request):
+        # Deletes all log entries
+        result = DeviceLog.objects.all()
+        return delete_selected(self, request, result)
+    clearLogs.short_description = 'Clear logs'
+    list_buttons = [clearLogs]
     def timeWithMsPrecision(self):
         timeInSeconds = math.floor(self.created[-5])
         timeInMiliSeconds = math.floor(self.msecs*1000)

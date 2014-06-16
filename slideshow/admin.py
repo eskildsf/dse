@@ -129,7 +129,11 @@ class DeviceLogAdmin(ButtonAdmin):
     def clearLogs(self, request):
         # Deletes all log entries
         result = DeviceLog.objects.all()
-        return delete_selected(self, request, result)
+        action = delete_selected(self, request, result)
+        if action is None:
+            return redirect(reverse('admin:slideshow_devicelog_changelist'))
+        else:
+            return action
     clearLogs.short_description = 'Clear logs'
     list_buttons = [clearLogs]
     def timeWithMsPrecision(self):

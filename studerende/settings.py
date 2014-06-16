@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'groupcache',
     'questionnaire',
     'jobbank',
+    'raven.contrib.django.raven_compat',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

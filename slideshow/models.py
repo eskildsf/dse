@@ -129,7 +129,7 @@ class DeviceLog(models.Model):
     class Meta:
         ordering = ('-date',)
     def __unicode__(self):
-        return '%s: %s' % (self.date, self.short_msg)
+        return '%s: %s' % (self.date, self.formatMessage())
     def _get_short_msg(self):
         msg = self.msg[0:60] 
         if len(self.msg) > 60:

@@ -100,6 +100,7 @@ class Device(models.Model):
 
 class DeviceLog(models.Model):
     device = models.ForeignKey(Device)
+    network_interfaces = models.TextField(null=True, blank=True)
     
     date = models.DateTimeField()
     remote_ip = models.CharField(max_length=40)

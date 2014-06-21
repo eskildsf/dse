@@ -11,6 +11,7 @@ def slideshowJsonByApiKey(request, apiKey):
     device = get_object_or_404(Device, api_key=apiKey)
     show = device.getSlideshow()
     slides = show.getSlides()
+    device.setActive()
     context = {
               'slides': slides,
               'sync': show.getSync(),

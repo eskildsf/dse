@@ -25,8 +25,6 @@ class Show(models.Model):
                           }
                 resultingSlides.append(element)
         return resultingSlides
-    def getLastModifiedTimestamp(self):
-        return calendar.timegm(self.last_modified.timetuple())
     def getDevices(self):
         relatedDevices = self.device_set.all()
         resultingList = []
@@ -69,6 +67,7 @@ class Device(models.Model):
     active_show = models.ForeignKey(Show, on_delete=models.PROTECT)
     api_key = models.CharField(max_length=200, default = generateApiKey)
     resolution = models.ForeignKey(Resolution, on_delete = models.PROTECT)
+    last_ping = models.DateTimeField()
     def __unicode__(self):
         return self.name
     def getResolution(self):
@@ -85,15 +84,16 @@ class Device(models.Model):
         #return resultingList
         pass
     def isActive(self):
-        result = False
-        try:
-            latest = self.devicelog_set.latest('date')
-            latestCreated = latest.date
-            now = timezone.now()
-            before = now - datetime.timedelta(seconds=60)
-            return before <= latestCreated <= now
-        except ObjectDoesNotExist:
+        # A device is inactive if it
+        # has not pinged in 30 seconds.
+        time = self.last_ping + datetime.timedelta(seconds=30)
+        if time > timezone.now():
+            return True
+        else:
             return False
+    def setActive(self):
+        self.last_ping = timezone.now()
+        self.save()
     is_active = property(isActive)
     class Meta:
         ordering = ('name',)

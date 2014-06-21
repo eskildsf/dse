@@ -11,13 +11,8 @@ def slideshowJsonByApiKey(request, apiKey):
     device = get_object_or_404(Device, api_key=apiKey)
     show = device.getSlideshow()
     slides = show.getSlides()
-    timestamp = show.getLastModifiedTimestamp()
-    if device.getLastModifiedTimestamp() > timestamp:
-        timestamp = device.getLastModifiedTimestamp()
     context = {
-              'slideshowVersion': '1382984863',
-              'projectorVersion': timestamp,
-              'slideshow': slides,
+              'slides': slides,
               'sync': show.getSync(),
               }
     return HttpResponse(json.dumps(context))

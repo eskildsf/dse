@@ -39,7 +39,7 @@ class Show(models.Model):
         return self.last_sync
     class Meta:
         ordering = ('name',)
-    def setSync(self, delta=40):
+    def setSync(self, delta=20):
         self.last_sync = calendar.timegm(timezone.now().timetuple())+delta;
         self.save()
 

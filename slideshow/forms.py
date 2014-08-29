@@ -3,6 +3,7 @@ import datetime
 
 from django import forms
 from django.conf import settings
+from django.utils import timezone
 
 from slideshow.models import Device, DeviceLog
 
@@ -19,7 +20,7 @@ class LogMessageForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super(LogMessageForm, self).save(commit=False)
         instance.device = self.device
-        instance.date = datetime.datetime.now()
+        instance.date = timezone.now()
         instance.remote_ip = self.request.META['REMOTE_ADDR']
         if getattr(settings, 'REMOTELOG_DNS_LOOKUP_ENABLED', False):
             hostname, aliaslist, ipaddrlist = \

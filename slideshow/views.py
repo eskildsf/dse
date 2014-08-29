@@ -24,6 +24,15 @@ def deviceLog(request, apiKey):
     form = LogMessageForm(request, device)
     if form.is_valid():
         form.save()
-        return HttpResponse('Log message saved.')
+        return HttpResponse(status=200)
     else:
-        return HttpResponse(pprint.pformat(form.errors))
+        return HttpResponse(status=500)
+
+def devices(request):
+    query = DeviceLog.objects.raw('SELECT a.* FROM slideshow_devicelog a LEFT JOIN slideshow_devicelog b ON (a.device_id = b.device_id AND a.id < b.id) WHERE b.id IS NULL')
+    ips = []
+    for e in query:
+        interfaces = eval(e.network_interfaces, {'__builtins__':None}, {})
+        interface = interfaces[0][1]['addr']
+        ips.append({'name': e.device.name, 'ip': interface})
+    return HttpResponse(json.dumps(ips))

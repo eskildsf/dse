@@ -9,4 +9,5 @@ from slideshow import views
 urlpatterns = patterns('',
     url(r'^api/json/(?P<apiKey>.*)/$', views.slideshowJsonByApiKey, name='slideshowAjaxByApiKey'),
     url(r'^api/log/(?P<apiKey>.*)/$', views.deviceLog, name='log'),
+    url(r'^api/devices/$', views.devices, name='devices'),
 )

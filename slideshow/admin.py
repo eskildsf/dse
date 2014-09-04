@@ -26,7 +26,7 @@ class ShowAdmin(admin.ModelAdmin):
         return ", ".join(deviceLinks)
     def showOnAllDevices(self):
         url = reverse('admin:setActiveOnAll', args=[self.id])
-        return u"<a href='%s'>show on all devices</a>" % url
+        return u"<a href='%s'>Show on all devices</a>" % url
     def syncLink(self):
         url = reverse('admin:sync', args=[self.id])
         return u"<a href='%s'>Sync all devices</a>" % url

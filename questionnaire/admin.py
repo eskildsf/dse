@@ -46,7 +46,7 @@ class SurveyAdmin(admin.ModelAdmin):
     setActiveLink.allow_tags = True
     def viewSurveyLink(self):
         url = reverse('questionnaire:survey', args=[self.id])
-        return u"<a href='%s'>View survey</a>" % url
+        return u"<a href='%s' target='_blank'>View survey</a>" % url
     viewSurveyLink.short_description = ''
     viewSurveyLink.allow_tags = True
     def setActive(self, request, surveyId):

@@ -19,7 +19,16 @@ $(document).keydown(function(event){
 <h1>{{ name }}</h1>
 {{ introduction }}
 <form action="" method="post">{% csrf_token %}
-{{ form.as_p }}
+{% for field in form %}
+{% if field.label != "html" %}
+    <p>
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }} {{ field.help_text }}
+    </p>
+{% elif field.label == "html" %}
+{{ field.help_text }}
+{% endif %}
+{% endfor %}
 <p><button type="submit">OK</button></p>
 </form>
 </div>

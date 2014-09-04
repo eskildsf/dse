@@ -25,6 +25,8 @@ class SurveyForm(forms.Form):
                 field = forms.ChoiceField(widget=forms.RadioSelect, label=value['question'], required=value['required'], choices=value['choices'])
             elif value['type'] == 'checkboxgroup':
                 field = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label=value['question'], required=value['required'], choices=value['choices'])
+            elif value['type'] == 'html':
+                field = forms.CharField(label='html', help_text=mark_safe(value['question']), required=False)
             if field is not None:
                 # Give the field a tag so that we know we added it.
                 self.fields['q_%s' % i] = field;

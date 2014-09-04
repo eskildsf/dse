@@ -39,7 +39,7 @@ class Survey(models.Model):
     def getQuestions(self):
         soup = BeautifulSoup(self.markup)
         # These are the accepted fields:
-        types = ('text', 'textarea', 'radio', 'checkboxgroup',)
+        types = ('text', 'textarea', 'radio', 'checkboxgroup', 'html',)
         fields = []
         survey = soup.questionnaire.contents
         # Only loop through actual fields

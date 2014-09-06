@@ -19,8 +19,8 @@ class Survey(models.Model):
     name = models.CharField(max_length=200, verbose_name = 'Title')
     markup = models.TextField()
     active = models.BooleanField(default=False)
-    receipt = models.FileField(upload_to='questionnaire')
-    text_message = models.CharField(max_length=255, verbose_name = 'Confirmation text message')
+    receipt = models.FileField(upload_to='questionnaire', blank = True, help_text = 'A receipt will only be printed if one is specified.')
+    text_message = models.CharField(max_length=255, verbose_name = 'Confirmation text message', blank = True, help_text = 'A text message will only be sent if this field is not left blank.')
     def __unicode__(self):
         return self.name
     def save(self, *args, **kwargs):
@@ -57,7 +57,12 @@ class Survey(models.Model):
                 options = tuple(choices)
             required = child.has_attr('required')
             question = clean(question)
-            fields.append({'question': question, 'type': type, 'choices': options, 'required': required})
+            field = {'question': question, 'type': type, 'choices': options, 'required': required}
+            if child.has_attr('id'):
+                field['id'] = child.get('id')
+            if child.has_attr('help'):
+                field['help'] = child.get('help')
+            fields.append(field)
         return fields
     def getIntroduction(self):
         soup = BeautifulSoup(self.markup)
@@ -114,19 +119,23 @@ class Answer(models.Model):
 
 class Participant(models.Model):
     created = models.DateTimeField(editable=False)
-    phonehash = models.CharField(max_length=200, verbose_name = 'Tlf hash', editable = False)
+    phonehash = models.CharField(max_length=200, verbose_name = 'Tlf hash', editable = False, blank = True)
+    name = models.CharField(max_length=200, verbose_name = 'Name', editable = False, blank = True)
     def __unicode__(self):
-        return self.phonehash
+        if len(self.phonehash) > 7:
+            return self.phonehash
+        else:
+            return self.name
     def save(self, *args, **kwargs):
-        today = datetime.datetime.today()
         if not self.id:
-            self.phonehash = hashlib.sha1(str(self.phone)).hexdigest()
-            self.created = today
+            if hasattr(self, 'phone'):
+                self.phonehash = hashlib.sha1(str(self.phone)).hexdigest()
+            self.created = datetime.datetime.today()
         super(Participant, self).save(*args, **kwargs)
-    def doesParticipantExist(self, phone):
+    def doesParticipantExist(self, phone, name):
         phonehash = hashlib.sha1(str(phone)).hexdigest()
         return Participant.objects.filter(phonehash=phonehash).count() is not 0        
-    def canParticipantParticipate(self, phone):
+    def canParticipantParticipate(self, phone, name):
         pass# When did the participant participate last time?
         # Did the participant get a survey gift?
 
@@ -134,12 +143,11 @@ class TextMessage(models.Model):
     participant = models.ForeignKey(Participant)
     created = models.DateTimeField(editable=False)
     uuid = models.CharField(max_length=200, verbose_name = 'sms1919 ID', editable = False, db_index = True)
-    code = models.CharField(max_length=200, verbose_name = 'Kode', editable = False, db_index = True)
+    code = models.CharField(max_length=200, verbose_name = 'Code', editable = False, db_index = True)
     active = models.BooleanField(default=True)
     def save(self, *args, **kwargs):
-        today = datetime.datetime.today()
         if not self.id:
-            self.created = today
+            self.created = datetime.datetime.today()
             self.code = hash(str(uuid.uuid1())) % 1000000
         super(TextMessage, self).save(*args, **kwargs)
     def setInactive(self):

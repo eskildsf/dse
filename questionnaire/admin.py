@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.conf.urls import patterns, url
 from django.core.exceptions import ValidationError
+from admin_buttons import ButtonAdmin
+from django.contrib.admin.actions import delete_selected
 
 class SurveyAdminForm(forms.ModelForm):
     model = Survey
@@ -21,7 +23,7 @@ class SurveyAdminForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(SurveyAdminForm, self).clean()
         # The text message has to contain the code.
-        if '%s' not in self.cleaned_data['text_message']:
+        if '%s' not in self.cleaned_data['text_message'] and self.cleaned_data['text_message'] != '':
             msg = 'The code denoted by %s has to be in the text message.'
             self._errors['text_message'] = self.error_class([msg])
             del cleaned_data['text_message']
@@ -77,6 +79,7 @@ class AnswerInline(admin.TabularInline):
     extra = 0
     order_by = ('question_id',)
     exclude = ('question_id', 'answer',)
+    can_delete = False
 
 class ResponseAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
@@ -87,6 +90,22 @@ class ResponseAdmin(admin.ModelAdmin):
     list_display = ('survey', 'created',)
 admin.site.register(Response, ResponseAdmin)
 
+class ParticipantAdmin(ButtonAdmin):
+    readonly_fields = ('name',)
+    def clearLogs(self, request):
+        # Deletes all log entries
+        result = Participant.objects.all()
+        action = delete_selected(self, request, result)
+        if action is None:
+            return redirect(reverse('admin:questionnaire_participant_changelist'))
+        else:
+            return action
+    clearLogs.short_description = 'Clear participants'
+    list_buttons = [clearLogs]
+    def has_add_permission(self, request, obj=None):
+        return False
+admin.site.register(Participant, ParticipantAdmin)
+
 class TextMessageLogInline(admin.TabularInline):
     def has_add_permission(self, request):
         return False
@@ -95,6 +114,7 @@ class TextMessageLogInline(admin.TabularInline):
     readonly_fields = ('created', 'message_id',)
     extra = 0
     order_by= ('created',)
+    can_delete = False
 
 class TextMessageAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):

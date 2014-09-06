@@ -13,23 +13,39 @@ from bs4 import BeautifulSoup
 class SurveyForm(forms.Form):
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields')
+        survey = kwargs.pop('survey')
         super(SurveyForm, self).__init__(*args, **kwargs)
-        self.fields['participant_phone'] = forms.IntegerField(widget=forms.TextInput, required=False, min_value = 10000000, max_value = 99999999, label='What is your mobile phone number? (optional)', help_text = "We use this to send you a confirmation code via. text message which is needed to redeem your prize. You will not be able to redeem your prize if you do not give us your mobile phone number. We do not store your phone number.")
+        if survey.text_message != '':
+            self.fields['participant_phone'] = forms.IntegerField(
+                                               widget=forms.TextInput,
+                                               required=False,
+                                               min_value = 10000000,
+                                               max_value = 99999999,
+                                               label='What is your mobile phone number? (optional)',
+                                               help_text = "We use this to send you a confirmation code via. text message which is needed to redeem your prize. You will not be able to redeem your prize if you do not give us your mobile phone number. We do not store your phone number."
+                                               )
         for i, value in enumerate(fields):
             field = None
+            help = None
+            if 'help' in value:
+                help = value['help']
             if value['type'] == 'text':
-                field = forms.CharField(label=value['question'], required=value['required'])
+                field = forms.CharField(label=value['question'], required=value['required'], help_text=help)
             elif value['type'] == 'textarea':
-                field = forms.CharField(widget=forms.Textarea, label=value['question'], required=value['required'])
+                field = forms.CharField(widget=forms.Textarea, label=value['question'], required=value['required'], help_text=help)
             elif value['type'] == 'radio':
-                field = forms.ChoiceField(widget=forms.RadioSelect, label=value['question'], required=value['required'], choices=value['choices'])
+                field = forms.ChoiceField(widget=forms.RadioSelect, label=value['question'], required=value['required'], choices=value['choices'], help_text=help)
             elif value['type'] == 'checkboxgroup':
-                field = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label=value['question'], required=value['required'], choices=value['choices'])
+                field = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label=value['question'], required=value['required'], choices=value['choices'], help_text=help)
             elif value['type'] == 'html':
                 field = forms.CharField(label='html', help_text=mark_safe(value['question']), required=False)
             if field is not None:
                 # Give the field a tag so that we know we added it.
-                self.fields['q_%s' % i] = field;
+                if 'id' in value:
+                    id = '%s' % value['id']
+                else:
+                    id = 'q_%s' % i
+                self.fields[id] = field;
     def answers(self):
         for name, value in self.cleaned_data.items():
             # Find the dynamically generated fields.
@@ -40,33 +56,38 @@ def index(request):
     # If there is just one questionnaire then show it.
     # Otherwise get the one marked as active.
     if Survey.objects.count() == 1:
-        id = Survey.objects.all()[:1].get().id
+        id = Survey.objects.all()[:1].id
     else:
-        id = Survey.objects.filter(active=True).get().id
+        id = Survey.objects.filter(active=True)[0].id
     return redirect(reverse('questionnaire:survey', kwargs={'survey_id': id}))
 
 def survey(request, survey_id):
     # 404 if the survey doesn't exist.
     survey = get_object_or_404(Survey, id=survey_id)
+    # Does a receipt for printing exist?
+    receipt = len(str(survey.receipt))
     # Build the form
     fields = survey.getQuestions()
-    form = SurveyForm(request.POST or None, fields = fields)
+    form = SurveyForm(request.POST or None, fields = fields, survey = survey)
     if form.is_valid():
         response = Response(survey=survey)
         response.save()
         for (question, answer) in form.answers():
             response.answer_set.create(question_id=question, answer=answer)
         confirmation = survey.getConfirmation()
-        # Do the printing
-        #path = survey.receipt.path
-        #printer = cups.Connection()
-        #printer.printFile(settings.QUESTIONNAIRE_PRINTER, path, 'Questionnaire receipt', {})
-        # Send text-message
+        if receipt:
+            # Do the printing
+            path = survey.receipt.path
+            printer = cups.Connection()
+            printer.printFile(settings.QUESTIONNAIRE_PRINTER, path, 'Questionnaire receipt', {})
         # Does participant already exist?
         participant = Participant()
-        if participant.doesParticipantExist(form.cleaned_data['participant_phone']):
-            pass #If the participant exists already then abort.
-        if request.POST['participant_phone'] is not u'':
+        #if participant.doesParticipantExist(form.cleaned_data['participant_phone']):
+        #    pass #If the participant exists already then abort.
+        if 'participant_name' in request.POST and request.POST['participant_name'] is not u'':
+            participant.name = form.cleaned_data['participant_name']
+            participant.save()
+        if 'participant_phone' in request.POST and request.POST['participant_phone'] is not u'':
             participant.phone = form.cleaned_data['participant_phone']
             participant.save()
             text_message = TextMessage()
@@ -88,8 +109,8 @@ def survey(request, survey_id):
             sms_id = soup.result.messageid.contents
             text_message.uuid = "".join(unicode(item) for item in sms_id)
             text_message.save()
-        context = {'name': survey.name, 'confirmation': mark_safe(confirmation)}
-        return render(request, 'questionnaire/printing.html', context)
+        context = {'name': survey.name, 'confirmation': mark_safe(confirmation), 'receipt': receipt}
+        return render(request, 'questionnaire/confirmation.html', context)
 
     introduction = survey.getIntroduction()
     context = {'name': survey.name, 'introduction': mark_safe(introduction), 'form': form}

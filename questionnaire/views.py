@@ -27,18 +27,19 @@ class SurveyForm(forms.Form):
         for i, value in enumerate(fields):
             field = None
             help = None
+            question = mark_safe(value['question'])
             if 'help' in value:
-                help = value['help']
+                help = mark_safe(value['help'])
             if value['type'] == 'text':
-                field = forms.CharField(label=value['question'], required=value['required'], help_text=help)
+                field = forms.CharField(label=question, required=value['required'], help_text=help)
             elif value['type'] == 'textarea':
-                field = forms.CharField(widget=forms.Textarea, label=value['question'], required=value['required'], help_text=help)
+                field = forms.CharField(widget=forms.Textarea, label=question, required=value['required'], help_text=help)
             elif value['type'] == 'radio':
-                field = forms.ChoiceField(widget=forms.RadioSelect, label=value['question'], required=value['required'], choices=value['choices'], help_text=help)
+                field = forms.ChoiceField(widget=forms.RadioSelect, label=question, required=value['required'], choices=value['choices'], help_text=help)
             elif value['type'] == 'checkboxgroup':
-                field = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label=value['question'], required=value['required'], choices=value['choices'], help_text=help)
+                field = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label=question, required=value['required'], choices=value['choices'], help_text=help)
             elif value['type'] == 'html':
-                field = forms.CharField(label='html', help_text=mark_safe(value['question']), required=False)
+                field = forms.CharField(label='html', help_text=question, required=False)
             if field is not None:
                 # Give the field a tag so that we know we added it.
                 if 'id' in value:

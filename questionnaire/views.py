@@ -24,7 +24,7 @@ class SurveyForm(forms.Form):
                                                label='What is your mobile phone number? (optional)',
                                                help_text = "We use this to send you a confirmation code via. text message which is needed to redeem your prize. You will not be able to redeem your prize if you do not give us your mobile phone number. We do not store your phone number."
                                                )
-        for i, value in enumerate(fields):
+        for i, value in fields.iteritems():
             field = None
             help = None
             question = mark_safe(value['question'])
@@ -44,6 +44,8 @@ class SurveyForm(forms.Form):
                 # Give the field a tag so that we know we added it.
                 if 'id' in value:
                     id = '%s' % value['id']
+                elif value['type'] == 'html':
+                    id = 'html_%s' % i
                 else:
                     id = 'q_%s' % i
                 self.fields[id] = field;
@@ -61,6 +63,11 @@ def index(request):
     else:
         id = Survey.objects.filter(active=True)[0].id
     return redirect(reverse('questionnaire:survey', kwargs={'survey_id': id}))
+
+def company(request, survey_id, company_id):
+    survey = get_object_or_404(Survey, id=survey_id)
+    result = survey.getResponses()
+    return HttpResponse(result)
 
 def survey(request, survey_id):
     # 404 if the survey doesn't exist.

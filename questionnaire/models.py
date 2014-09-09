@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from django.utils.timezone import utc
 from bs4 import BeautifulSoup
 import re
 import ast
@@ -7,6 +8,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 import uuid
 import hashlib
+from collections import OrderedDict
 
 def c(l):
     return "".join(unicode(item) for item in l.contents)
@@ -40,11 +42,11 @@ class Survey(models.Model):
         soup = BeautifulSoup(self.markup)
         # These are the accepted fields:
         types = ('text', 'textarea', 'radio', 'checkboxgroup', 'html',)
-        fields = []
+        fields = OrderedDict()
         survey = soup.questionnaire.contents
         # Only loop through actual fields
         gen = ( x for x in survey if hasattr(x, 'name') and x.name in types )
-        for child in gen:
+        for i, child in enumerate(gen):
             question = c(child).replace('\n', '')
             type = child.name
             options = None
@@ -52,8 +54,8 @@ class Survey(models.Model):
                 options = question.split('* ')
                 question = options.pop(0)
                 choices = []
-                for i, option in enumerate(options):
-                    choices.append((str(i), clean(option),))
+                for ii, option in enumerate(options):
+                    choices.append((str(ii), clean(option),))
                 options = tuple(choices)
             required = child.has_attr('required')
             question = clean(question)
@@ -62,7 +64,7 @@ class Survey(models.Model):
                 field['id'] = child.get('id')
             if child.has_attr('help'):
                 field['help'] = child.get('help')
-            fields.append(field)
+            fields[str(i)] = field
         return fields
     def getIntroduction(self):
         soup = BeautifulSoup(self.markup)
@@ -70,6 +72,16 @@ class Survey(models.Model):
     def getConfirmation(self):
         soup = BeautifulSoup(self.markup)        
         return c(soup.questionnaire.confirmation)
+    def getResponses(self):
+        if self.response_set.count() == 0:
+            return []
+        questions = self.getQuestions()
+        responses = self.response_set.all()
+        result = []
+        for response in responses:
+            response.c_questions = questions
+            result.append(response.getQuestionsAndAnswers())
+        return result
 
 # If there will be just one survey left after a delete procedure
 # then the last one has to be active.
@@ -87,19 +99,35 @@ class Response(models.Model):
         return self.survey.name+' on the '+unicode(self.created.replace(microsecond=0))
     def save(self, *args, **kwargs):
         if not self.id:
-            self.created = datetime.datetime.today()
+            self.created = datetime.datetime.today().replace(tzinfo=utc)
         else:
             pass
         super(Response, self).save(*args, **kwargs)
+    def getQuestionsAndAnswers(self):
+        if hasattr(self, 'c_questions'):
+            questions = self.c_questions
+        else:
+            questions = self.survey.getQuestions()
+            self.c_questions = questions
+        answers = self.answer_set.all()
+        result = {}
+        for e in answers:
+            e.c_field = questions[e.q_id()]
+            result[e.q_id()] = (e.question(), e.tanswer(), e.answer)
+        return result
 
 class Answer(models.Model):
     response = models.ForeignKey(Response)
     question_id = models.SmallIntegerField()
     answer = models.TextField()
     def q_id(self):
-        return int(self.question_id)
+        return str(self.question_id)
     def field(self):
-        return self.response.survey.getQuestions()[self.q_id()]
+        if hasattr(self, 'c_field'):
+            return self.c_field
+        field = self.response.survey.getQuestions()[self.q_id()]
+        self.c_field = field
+        return field
     def question(self):
         return self.field()['question']
     question.short_description = 'Question'
@@ -130,7 +158,7 @@ class Participant(models.Model):
         if not self.id:
             if hasattr(self, 'phone'):
                 self.phonehash = hashlib.sha1(str(self.phone)).hexdigest()
-            self.created = datetime.datetime.today()
+            self.created = datetime.datetime.today().replace(tzinfo=utc)
         super(Participant, self).save(*args, **kwargs)
     def doesParticipantExist(self, phone, name):
         phonehash = hashlib.sha1(str(phone)).hexdigest()
@@ -147,7 +175,7 @@ class TextMessage(models.Model):
     active = models.BooleanField(default=True)
     def save(self, *args, **kwargs):
         if not self.id:
-            self.created = datetime.datetime.today()
+            self.created = datetime.datetime.today().replace(tzinfo=utc)
             self.code = hash(str(uuid.uuid1())) % 1000000
         super(TextMessage, self).save(*args, **kwargs)
     def setInactive(self):
@@ -160,7 +188,7 @@ class TextMessageLog(models.Model):
     message_id = models.SmallIntegerField()
     def save(self, *args, **kwargs):
         if not self.id:
-            self.created = datetime.datetime.today()
+            self.created = datetime.datetime.today().replace(tzinfo=utc)
         super(TextMessageLog, self).save(*args, **kwargs)
     def message(self):
         pass

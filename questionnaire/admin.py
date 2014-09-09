@@ -41,6 +41,7 @@ class SurveyAdminForm(forms.ModelForm):
 
 class SurveyAdmin(admin.ModelAdmin):
     form = SurveyAdminForm
+    save_as = True
     def setActiveLink(self):
         url = reverse('admin:setActive', args=[self.id])
         return u"<a href='%s'>Activate</a>" % url
@@ -93,6 +94,7 @@ class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ('survey', )
     list_filter = ('survey',)
     list_display = ('survey', 'created',)
+    
 admin.site.register(Response, ResponseAdmin)
 
 class ParticipantAdmin(ButtonAdmin):

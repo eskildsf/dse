@@ -1,6 +1,5 @@
 from django.db import models
-import datetime
-from django.utils.timezone import utc
+from django.utils import timezone
 from bs4 import BeautifulSoup
 import re
 import ast
@@ -9,6 +8,12 @@ from django.dispatch import receiver
 import uuid
 import hashlib
 from collections import OrderedDict
+
+def today():
+    # Returns a datetime object that is timezone
+    # aware and only includes the date.
+    date = timezone.now().replace(hour=12, minute=12, second=12, microsecond=12)
+    return date
 
 def c(l):
     return "".join(unicode(item) for item in l.contents)
@@ -99,7 +104,7 @@ class Response(models.Model):
         return self.survey.name+' on the '+unicode(self.created.replace(microsecond=0))
     def save(self, *args, **kwargs):
         if not self.id:
-            self.created = datetime.datetime.today().replace(tzinfo=utc)
+            self.created = today()
         else:
             pass
         super(Response, self).save(*args, **kwargs)
@@ -158,7 +163,7 @@ class Participant(models.Model):
         if not self.id:
             if hasattr(self, 'phone'):
                 self.phonehash = hashlib.sha1(str(self.phone)).hexdigest()
-            self.created = datetime.datetime.today().replace(tzinfo=utc)
+            self.created = today()
         super(Participant, self).save(*args, **kwargs)
     def doesParticipantExist(self, phone, name):
         phonehash = hashlib.sha1(str(phone)).hexdigest()
@@ -175,7 +180,6 @@ class TextMessage(models.Model):
     active = models.BooleanField(default=True)
     def save(self, *args, **kwargs):
         if not self.id:
-            self.created = datetime.datetime.today().replace(tzinfo=utc)
             self.code = hash(str(uuid.uuid1())) % 1000000
         super(TextMessage, self).save(*args, **kwargs)
     def setInactive(self):
@@ -186,9 +190,5 @@ class TextMessageLog(models.Model):
     created = models.DateTimeField(editable=False)
     text_message = models.ForeignKey(TextMessage)
     message_id = models.SmallIntegerField()
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.created = datetime.datetime.today().replace(tzinfo=utc)
-        super(TextMessageLog, self).save(*args, **kwargs)
     def message(self):
         pass

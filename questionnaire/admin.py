@@ -51,11 +51,16 @@ class SurveyAdmin(admin.ModelAdmin):
         return u"<a href='%s' target='_blank'>View survey</a>" % url
     viewSurveyLink.short_description = ''
     viewSurveyLink.allow_tags = True
+    def exportSurveyLink(self):
+        url = reverse('questionnaire:export', args=[self.id])
+        return u"<a href='%s' target='_blank'>Export survey responses</a>" % url
+    exportSurveyLink.short_description = ''
+    exportSurveyLink.allow_tags = True
     def setActive(self, request, surveyId):
         survey = get_object_or_404(Survey, pk=surveyId)
         survey.setActive()
         return redirect(reverse('admin:questionnaire_survey_changelist'))
-    list_display = ('name', viewSurveyLink, 'active', setActiveLink,)
+    list_display = ('name', viewSurveyLink, 'active', setActiveLink, exportSurveyLink)
     
     def get_urls(self):
         urls = super(SurveyAdmin, self).get_urls()

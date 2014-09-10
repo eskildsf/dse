@@ -59,7 +59,7 @@ class Survey(models.Model):
                 options = question.split('* ')
                 question = options.pop(0)
                 choices = []
-                for ii, option in enumerate(options):
+                for ii, option in enumerate(options, start=1):
                     choices.append((str(ii), clean(option),))
                 options = tuple(choices)
             required = child.has_attr('required')
@@ -118,7 +118,7 @@ class Response(models.Model):
         result = {}
         for e in answers:
             e.c_field = questions[e.q_id()]
-            result[e.q_id()] = (e.question(), e.tanswer(), e.answer)
+            result[e.q_id()] = (e.type(), e.question(), e.answer)
         return result
 
 class Answer(models.Model):
@@ -133,15 +133,17 @@ class Answer(models.Model):
         field = self.response.survey.getQuestions()[self.q_id()]
         self.c_field = field
         return field
+    def type(self):
+        return self.field()['type']
     def question(self):
         return self.field()['question']
     question.short_description = 'Question'
     def tanswer(self):
         if self.field()['type'] == 'radio':
-            r = self.field()['choices'][int(self.answer)][1]
+            r = self.field()['choices'][int(self.answer)-1][1]
         elif self.field()['type'] == 'checkboxgroup':
             chosen_option_ids = ast.literal_eval(self.answer)
-            chosen_options = [self.field()['choices'][int(x)][1] for x in chosen_option_ids]
+            chosen_options = [self.field()['choices'][int(x)-1][1] for x in chosen_option_ids]
             r = ', '.join(chosen_options)
         else:
             r = self.answer

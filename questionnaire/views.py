@@ -3,14 +3,15 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django import forms
 from django.utils.html import mark_safe
+from django.utils.text import slugify
 from questionnaire.models import Survey, Response, Answer, Participant, TextMessage, TextMessageLog
 from django.shortcuts import get_object_or_404
 import cups
 from django.conf import settings
 import urllib, urllib2
 from bs4 import BeautifulSoup
-from collections import OrderedDict
 import csv
+import ast
 
 class SurveyForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -71,12 +72,15 @@ class Question():
         self.id = id
         self.question = question
         self.answers = []
-    def answer(self, id, answer):
-        self.answers.append((id, answer,))
+        self.subquestions = []
+    def answer(self, answer):
+        self.answers.append(answer)
+    def subquestion(self, obj):
+        self.subquestions.append(obj)
     def __unicode__(self):
         return self.question
     def getAnswers(self):
-        return [answer for id, answer in self.answers]
+        return self.answers
 
 def export(request, survey_id):
     if request.user.is_authenticated() is not True:
@@ -89,27 +93,57 @@ def export(request, survey_id):
     responses = survey.getResponses()
     
     # Create a list of Question objects
-    # The questions will be identical on each one.
-    a = responses[0]
-    questions = OrderedDict()
-    for id, value in a.iteritems():
-        question, tanswer, answer = value
-        questions[id] = Question(id, question)
-
+    # The questions will be identical on each
+    # response.
+    questions = {}
+    q = survey.getQuestions()
+    for i, value in q.iteritems():
+        question = value['question']
+        questions[i] = Question(i, question)
+        if value['type'] in ('radio', 'checkboxgroup',):
+            for ii, option in value['choices']:
+                iii = "%s.%s" % (i, ii)
+                questions[iii] = Question(iii, option)
+                questions[i].subquestion(questions[iii])
+    
     # Attach answers from responses to questions
     for response in responses:
         for i, value in response.iteritems():
-            question, tanswer, answer = value
-            questions[i].answer(answer, tanswer)
+            type, question, answer = value
+            # Convert ID strings to lists of IDs
+            if type == 'checkboxgroup':
+                chosen_option_ids = ast.literal_eval(answer)
+            elif type == 'radio':
+                chosen_option_ids = [answer]
+            # Mark the ones chosen with a 1
+            # and the rest with a 0.
+            if type in ('radio', 'checkboxgroup',):
+                chosen_option_ids = ["%s.%s" % (i, x) for x in chosen_option_ids]
+                for q in questions[i].subquestions:
+                    if q.id in chosen_option_ids:
+                        q.answer(1)
+                    else:
+                        q.answer(0)
+            else:
+                questions[i].answer(answer)
 
     # Prepare a CSV file for download.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    filename = slugify(survey.name)
+    response['Content-Disposition'] = 'attachment; filename="%s.csv"' % filename
+    # Custom delimiter compensates for differences
+    # in Excel in english versus danish.
     writer = csv.writer(response, delimiter=';')
-    result = sorted(questions.items(), key = lambda x: int(x[1].id))
+    # Order by question ID so they appear in the
+    # same order as in the markup.
+    result = sorted(questions.items(), key = lambda x: float(x[1].id))
+    # Write a header row, then the data.
+    writer.writerow([survey.name])
     writer.writerow(['Question ID', 'Question', 'Answers'])
-    for i, question in result:
-        writer.writerow([question.id, question.question]+question.getAnswers())
+    rows = [[question.id, question.question]+question.getAnswers() for i, question in result]
+    writer.writerows(rows)
+    #for i, question in result:
+    #    writer.writerow([question.id, question.question]+question.getAnswers())
     return response
 
 def survey(request, survey_id):

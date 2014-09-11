@@ -16,6 +16,16 @@ $(document).keydown(function(event){
 -->
 </script>
 {% endif %}
+<script>
+<!--
+{% if not form.errors %}
+$( document ).ready(function() {
+    $(document.getElementsByTagName('form')).find('input:text, input:password, input:file, select, $
+    $(document.getElementsByTagName('form')).find('input:radio, input:checkbox').removeAttr('checke$
+});
+{% endif %}
+-->
+</script>
 <div id="page">
 <h1>{{ name }}</h1>
 {{ introduction }}
@@ -23,8 +33,7 @@ $(document).keydown(function(event){
 {% for field in form %}
 {% if field.label != "html" %}
     <p>
-        {{ field.errors }}
-        {{ field.label_tag }} {{ field }} {{ field.help_text }}
+        {{ field.label_tag }} {{ field.errors }} {{ field }} {{ field.help_text }}
     </p>
 {% elif field.label == "html" %}
 {{ field.help_text }}

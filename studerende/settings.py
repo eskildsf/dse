@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'groupcache',
     'questionnaire',
     'jobbank',
+    'django_extensions',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

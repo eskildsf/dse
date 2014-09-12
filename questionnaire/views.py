@@ -12,6 +12,7 @@ import urllib, urllib2
 from bs4 import BeautifulSoup
 import csv
 import ast
+from django.contrib.auth.decorators import login_required
 
 class SurveyForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -84,6 +85,7 @@ class Question():
     def getAnswers(self):
         return self.answers
 
+@login_required
 def export(request, survey_id):
     if request.user.is_authenticated() is not True:
         return httpResponseForbidden()

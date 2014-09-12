@@ -142,6 +142,7 @@ def export(request, survey_id):
     # Write a header row, then the data.
     writer.writerow([survey.name])
     writer.writerow(['Question ID', 'Question', 'Answers'])
+    writer.writerow(['', 'Submission date']+[e.created.strftime('%d-%m-%Y') for e in survey.response_set.all()])
     rows = [[question.id, question.question]+question.getAnswers() for i, question in result]
     writer.writerows(rows)
     #for i, question in result:

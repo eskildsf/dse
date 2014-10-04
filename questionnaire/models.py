@@ -8,6 +8,7 @@ from django.dispatch import receiver
 import uuid
 import hashlib
 from collections import OrderedDict
+from django.core.urlresolvers import reverse
 
 def today():
     # Returns a datetime object that is timezone

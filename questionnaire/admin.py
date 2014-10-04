@@ -39,7 +39,7 @@ class SurveyAdminForm(forms.ModelForm):
             del cleaned_data['active']
         return cleaned_data
 
-class SurveyAdmin(admin.ModelAdmin):
+class SurveyAdmin(ButtonAdmin):
     form = SurveyAdminForm
     save_as = True
     def setActiveLink(self):
@@ -68,7 +68,10 @@ class SurveyAdmin(admin.ModelAdmin):
     nResponses.short_description = 'Responses'
     nResponses.allow_tags = True
     list_display = ('name', nResponses, viewSurveyLink, 'active', setActiveLink, exportSurveyLink)
-    
+    def exportResponses(self, request, obj):
+        return redirect(reverse('questionnaire:export', args=[obj.id]))
+    exportResponses.short_description = 'Export responses'
+    change_buttons = [exportResponses]
     def get_urls(self):
         urls = super(SurveyAdmin, self).get_urls()
         newUrls = patterns('',

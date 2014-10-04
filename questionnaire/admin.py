@@ -71,12 +71,15 @@ class SurveyAdmin(ButtonAdmin):
     def exportResponses(self, request, obj):
         return redirect(reverse('questionnaire:export', args=[obj.id]))
     exportResponses.short_description = 'Export responses'
+    def viewSurvey(self, request, obj):
+        return redirect(reverse('questionnaire:survey', args=[obj.id]))
+    viewSurvey.short_description = 'View survey'
     def change_buttons(self, object_id):
-        survey = get_object_or_404(Survey, id=object_id)
+        survey = Survey.objects.get(id=object_id)
+        buttons = [self.viewSurvey]
         if survey.hasResponse():
-            return [self.exportResponses]
-        else:
-            return []
+            buttons.append(self.exportResponses)
+        return buttons
     def get_urls(self):
         urls = super(SurveyAdmin, self).get_urls()
         newUrls = patterns('',

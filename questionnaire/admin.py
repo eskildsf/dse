@@ -62,8 +62,11 @@ class SurveyAdmin(admin.ModelAdmin):
         survey.setActive()
         return redirect(reverse('admin:questionnaire_survey_changelist'))
     def nResponses(self):
-        return self.numberOfResponses()
+        url = reverse('admin:questionnaire_response_changelist')
+        url += '?survey__id__exact=%d' % self.id
+        return u"<a href='%s'>%s</a>" % (url, self.numberOfResponses())
     nResponses.short_description = 'Responses'
+    nResponses.allow_tags = True
     list_display = ('name', nResponses, viewSurveyLink, 'active', setActiveLink, exportSurveyLink)
     
     def get_urls(self):

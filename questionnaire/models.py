@@ -43,6 +43,8 @@ class Survey(models.Model):
         self.save()
     def hasResponse(self):
         return self.response_set.count() > 0
+    def numberOfResponses(self):
+        return self.response_set.count()
     def getQuestions(self):
         soup = BeautifulSoup(self.markup)
         # These are the accepted fields:

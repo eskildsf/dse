@@ -61,7 +61,10 @@ class SurveyAdmin(admin.ModelAdmin):
         survey = get_object_or_404(Survey, pk=surveyId)
         survey.setActive()
         return redirect(reverse('admin:questionnaire_survey_changelist'))
-    list_display = ('name', viewSurveyLink, 'active', setActiveLink, exportSurveyLink)
+    def nResponses(self):
+        return self.numberOfResponses()
+    nResponses.short_description = 'Responses'
+    list_display = ('name', nResponses, viewSurveyLink, 'active', setActiveLink, exportSurveyLink)
     
     def get_urls(self):
         urls = super(SurveyAdmin, self).get_urls()
@@ -90,8 +93,13 @@ class AnswerInline(admin.TabularInline):
 class ResponseAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
+    def _survey(self):
+        url = reverse('admin:questionnaire_survey_change',args=[self.survey_id])
+        return u"<a href='%s'>%s</a>" % (url, self.survey)
+    _survey.allow_tags = True
     inlines = [AnswerInline]
-    readonly_fields = ('survey', )
+    exclude = ('survey',)
+    readonly_fields = (_survey, )
     list_filter = ('survey',)
     list_display = ('survey', 'created',)
     

@@ -67,7 +67,7 @@ class Device(models.Model):
     active_show = models.ForeignKey(Show, on_delete=models.PROTECT)
     api_key = models.CharField(max_length=200, default = generateApiKey)
     resolution = models.ForeignKey(Resolution, on_delete = models.PROTECT)
-    last_ping = models.DateTimeField()
+    last_ping = models.DateTimeField(auto_now_add=True, blank=True)
     def __unicode__(self):
         return self.name
     def getResolution(self):

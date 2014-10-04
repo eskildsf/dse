@@ -125,6 +125,8 @@ class Answer(models.Model):
     response = models.ForeignKey(Response)
     question_id = models.SmallIntegerField()
     answer = models.TextField()
+    def __unicode__(self):
+        return self.field()['type'].title()
     def q_id(self):
         return str(self.question_id)
     def field(self):

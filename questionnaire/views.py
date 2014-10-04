@@ -71,12 +71,12 @@ def index(request):
 class Question():
     def __init__(self, id, question):
         self.id = id
-        self.question = question.encode('latin9')
+        self.question = question.encode('latin1')
         self.answers = []
         self.subquestions = []
     def answer(self, answer):
         if isinstance(answer, basestring):
-            answer = answer.encode('latin9')
+            answer = answer.encode('latin1')
         self.answers.append(answer)
     def subquestion(self, obj):
         self.subquestions.append(obj)

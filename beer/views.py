@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from django import forms
 from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
+from beer.models import DseUser
 import json
 
 class ApiForm(forms.Form):
@@ -33,4 +34,6 @@ def index(request):
     return render(request, 'beer/index.html')
 
 def barcodes(request):
-    
+    members = DseUser.objects.filter(all()
+    initials = [member.initials() for member in members]
+    return HttpResponse(initials)

@@ -8,6 +8,7 @@ from beer import views
 urlpatterns = patterns('',
     url(r'^api/in/$', views.apiIn, name='apiIn'),
     url(r'^api/out/$', views.apiOut, name='apiOut'),
+    url(r'^barcodes/$', views.barcodes, name='barcodes'),
     url(r'^$', views.index, name='index'),
 )
 

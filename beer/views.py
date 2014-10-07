@@ -31,3 +31,6 @@ def apiOut(request):
 
 def index(request):
     return render(request, 'beer/index.html')
+
+def barcodes(request):
+    

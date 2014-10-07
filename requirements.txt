@@ -9,3 +9,4 @@ pycups>=1.9.66
 python-ldap>=2.4.15
 python-memcached>=1.53
 -e git+https://github.com/mariocesar/sorl-thumbnail#egg=sorl-thumbnail
+pyBarcode>=0.7

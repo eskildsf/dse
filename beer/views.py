@@ -34,6 +34,6 @@ def index(request):
     return render(request, 'beer/index.html')
 
 def barcodes(request):
-    members = DseUser.objects.filter(all()
+    members = DseUser.objects.filter(department='lyngby')
     initials = [member.initials() for member in members]
     return HttpResponse(initials)

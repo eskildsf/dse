@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Beer WebLCD</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+function whitespace(c) {
+	var r = '';
+	var esf_whiteSpace = '.';
+	for ( k = 0; k < c; k++ ) {
+		r = r + esf_whiteSpace;
+	}
+	return r;
+}
+
+function stringToLetters(str) {
+    delta = 16-str.length;
+    if ( delta > 0 ) {
+        str = str + whitespace(delta);
+    }
+    var chars = str.split('');
+    var result = '';
+    for ( var i = 0; i < str.length; i++ ) {
+        result = result + '<span class="letter">' + chars[i] + '</span>';
+    }
+    return result;
+}
+
+function update() {
+  $.ajax({
+    dataType: 'json',
+    type: 'GET',
+    url: 'http://esf.studerende.dk/beer/api/out/',
+    timeout: 2000,
+    success: function(data) {
+      $("#line_1").html(stringToLetters(data['line1'])); 
+      $("#line_2").html(stringToLetters(data['line2']));
+      $("#line_3").html(stringToLetters(data['line3']));
+      $("#line_4").html(stringToLetters(data['line4']));
+      window.setTimeout(update, 2000);
+    },
+    error: function (XMLHttpRequest, textStatus, errorThrown) {
+      $("#notice_div").html('Timeout contacting server..');
+      window.setTimeout(update, 60000);
+    }
+});
+}
+$(document).ready(function() {
+    update();
+});
+</script>
+<style>
+.letter {background-color:#99CCFF;color:#000000;margin:2px;padding:2px;font-family:"Courier New", Courier, monospace;font-weight:bold;}
+.box {border-style:solid;border-width:thin;width:282px;padding:2px;}
+div {margin-top:6px;margin-bottom:3px;}
+</style>
+</head>
+
+<body>
+<div class="box">
+<div id="line_1"></div>
+<div id="line_2"></div>
+<div id="line_3"></div>
+<div id="line_4"></div>
+</div>
+<div id="notice_div"></div>
+</body>
+</html>

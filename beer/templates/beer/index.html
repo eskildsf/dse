@@ -29,13 +29,15 @@ function update() {
   $.ajax({
     dataType: 'json',
     type: 'GET',
-    url: 'http://esf.studerende.dk/beer/api/out/',
+    url: '{% url 'beer:apiOut' %}',
     timeout: 2000,
     success: function(data) {
-      $("#line_1").html(stringToLetters(data['line1'])); 
-      $("#line_2").html(stringToLetters(data['line2']));
-      $("#line_3").html(stringToLetters(data['line3']));
-      $("#line_4").html(stringToLetters(data['line4']));
+      for ( var key in data ) {
+        if ( data.hasOwnProperty(key) ) {
+          tag = "#" + key
+          $(tag).html(stringToLetters(data[key]));
+        }
+      }
       window.setTimeout(update, 2000);
     },
     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -57,10 +59,10 @@ div {margin-top:6px;margin-bottom:3px;}
 
 <body>
 <div class="box">
-<div id="line_1"></div>
-<div id="line_2"></div>
-<div id="line_3"></div>
-<div id="line_4"></div>
+<div id="line1"></div>
+<div id="line2"></div>
+<div id="line3"></div>
+<div id="line4"></div>
 </div>
 <div id="notice_div"></div>
 </body>

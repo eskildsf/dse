@@ -1,3 +1,4 @@
+#-*- encoding=UTF-8 -*-
 import re
 from django.db import models
 import django.db.models.options as options
@@ -28,3 +29,11 @@ class DseUser(models.Model):
         in_db = 'wikidata'
         verbose_name = 'DSE User'
         verbose_name_plural = 'DSE Users'
+
+class Product(models.Model):
+    name = models.CharField(max_length = 255, editable = False, db_column = 'navn')
+    price = models.CharField(max_length = 255, editable = False, db_column = 'pris')
+    barcode = models.CharField(max_length = 255, editable = False, db_column = 'ean')
+    class Meta:
+        db_table = u'Ølklubsvare'
+        in_db = 'wikidata'

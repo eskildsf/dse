@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^files-widget/', include('topnotchdev.files_widget.urls')),
     url(r'^jobbank/', include('jobbank.urls', namespace='jobbank')),
     url(r'^questionnaire/', include('questionnaire.urls', namespace='questionnaire')),
+    url(r'^beer/', include('beer.urls', namespace='beer')),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 )

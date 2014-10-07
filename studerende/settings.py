@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'groupcache',
     'questionnaire',
     'jobbank',
+    'beer',
     'django_extensions',
 )
 

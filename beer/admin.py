@@ -1,5 +1,5 @@
 from django.contrib import admin
-from beer.models import DseUser, Product
+from beer.models import DseUser, Product, Purchase
 from django.shortcuts import render
 import barcode_generator as bg
 from django.utils.html import mark_safe
@@ -48,3 +48,7 @@ class ProductAdmin(admin.ModelAdmin):
         }
         return render(request, 'beer/barcodes.html', context)
 admin.site.register(Product, ProductAdmin)
+
+class PurchaseAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Purchase, PurchaseAdmin)

@@ -1,8 +1,12 @@
 #-*- encoding=UTF-8 -*-
 import re
 from django.db import models
+from django.db.models import Q
 import django.db.models.options as options
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('in_db',)
+
+def getUsersInLyngby():
+    return DseUser.objects.filter(department='lyngby').exclude(Q(status='emeritus')|Q(status='udmeldt')|Q(status='passiv'))
 
 class DseUser(models.Model):
     name = models.CharField(max_length = 255, editable = False, db_column = 'navn')
@@ -37,3 +41,19 @@ class Product(models.Model):
     class Meta:
         db_table = u'Ølklubsvare'
         in_db = 'wikidata'
+
+def barcode_choices():
+    products = Product.objects.all()
+    return [(e.barcode, e.name) for e in products]
+
+class Purchase(models.Model):
+    created = models.DateTimeField(editable=False)
+    customer = models.CharField(max_length=255)
+    barcode = models.CharField(max_length=255, choices = barcode_choices())
+    price = models.IntegerField()
+    amount = models.IntegerField(default=1)
+    ACCOUNT_CHOICES = (
+    ('E', 'Egen konto'),
+    ('R', u'Rengøringsøl'),
+    )
+    account = models.CharField(max_length=10, choices = ACCOUNT_CHOICES, default = 'E')

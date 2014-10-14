@@ -20,21 +20,22 @@ class LCDForm(forms.Form):
             self.fields[k] = forms.CharField(max_length=100)
 
 @csrf_exempt
-def lcdIn(request):
-    form = LCDForm(request.POST, nlines = lines)
-    if form.is_valid():
-        timeout = 15
-        for key, value in form.cleaned_data.iteritems():
-            cache.set(key, value, timeout)
-        return HttpResponse('')
-    return HttpResponseServerError()
-
-def lcdOut(request):
-    context = {}
-    for i in range(1, lines+1):
-        k = 'line%s' % i
-        context[k] = cache.get(k, '')
-    return HttpResponse(json.dumps(context))
+def lcdAPI(request):
+    if request.method == 'POST':
+        form = LCDForm(request.POST, nlines = lines)
+        if form.is_valid():
+            timeout = 15
+            for key, value in form.cleaned_data.iteritems():
+                cache.set(key, value, timeout)
+            return HttpResponse('')
+        else:
+            return HttpResponseServerError()
+    elif request.method == 'GET':
+        context = {}
+        for i in range(1, lines+1):
+            k = 'line%s' % i
+            context[k] = cache.get(k, '')
+        return HttpResponse(json.dumps(context))
 
 def lcd(request):
     return render(request, 'beer/lcd.html')

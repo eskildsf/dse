@@ -6,8 +6,7 @@ from django.core.urlresolvers import reverse
 from beer import views
 
 urlpatterns = patterns('',
-    url(r'^lcd/in/$', views.lcdIn, name='apiIn'),
-    url(r'^lcd/out/$', views.lcdOut, name='apiOut'),
+    url(r'^api/lcd/$', views.lcdAPI, name='lcdAPI'),
     url(r'^barcodes/$', views.barcodes, name='barcodes'),
     url(r'^lcd/$', views.lcd, name='lcd'),
     url(r'^api/products/$', views.products, name='products'),
@@ -15,5 +14,6 @@ urlpatterns = patterns('',
     url(r'^api/accounts/$', views.accounts, name='accounts'),
     url(r'^api/purchase/create/$', views.makePurchase, name='makePurchase'),
     url(r'^api/purchase/delete/$', views.removePurchase, name='removePurchase'),
+#    url(r'^api/log/$', views.deviceLog, name='log'),
 )
 

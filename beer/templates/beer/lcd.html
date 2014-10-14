@@ -29,7 +29,7 @@ function update() {
   $.ajax({
     dataType: 'json',
     type: 'GET',
-    url: '{% url 'beer:apiOut' %}',
+    url: '{% url 'beer:lcdAPI' %}',
     timeout: 2000,
     success: function(data) {
       for ( var key in data ) {

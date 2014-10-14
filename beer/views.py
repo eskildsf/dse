@@ -7,19 +7,21 @@ from django.views.decorators.csrf import csrf_exempt
 from beer.models import DseUser, Product, Purchase, getUsersInLyngby
 import json
 import barcode_generator as bg
+from django.conf import settings
 
-lines = 4
+lines = settings.LCD_NLINES
 
 class LCDForm(forms.Form):
-    def __init__(self, request, *args, **kwargs):
-        for i in range(1, kwargs['nlines']+1):
+    def __init__(self, *args, **kwargs):
+        nlines = kwargs.pop('nlines')
+        super(LCDForm, self).__init__(*args, **kwargs)
+        for i in range(1, nlines+1):
             k = 'line%s' % i
-            v = forms.CharField(max_length=100)
-            self.fields[k] = v
+            self.fields[k] = forms.CharField(max_length=100)
 
 @csrf_exempt
 def lcdIn(request):
-    form = ApiForm(request.POST, nlines = lines)
+    form = LCDForm(request.POST, nlines = lines)
     if form.is_valid():
         timeout = 15
         for key, value in form.cleaned_data.iteritems():
@@ -66,6 +68,7 @@ class PurchaseForm(forms.ModelForm):
         model = Purchase
         fields = ['customer', 'barcode', 'price', 'amount', 'account']
 
+@csrf_exempt
 def makePurchase(request):
     form = PurchaseForm(request.POST)
     if form.is_valid():
@@ -84,6 +87,7 @@ def makePurchase(request):
 class PurchaseDeleteForm(forms.ModelForm):
     id = forms.IntegerField()
 
+@csrf_exempt
 def removePurchase(request):
     form = PurchaseForm(request.POST)
     if form.is_valid():
@@ -94,4 +98,3 @@ def removePurchase(request):
            return HttpResponseServerError()
        return HttpResponse()
     return HttpResponseServerError()
-        

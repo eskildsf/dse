@@ -125,7 +125,6 @@ INSTALLED_APPS = (
     'questionnaire',
     'jobbank',
     'beer',
-    'django_extensions',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

@@ -57,3 +57,51 @@ class Purchase(models.Model):
     ('R', u'Rengøringsøl'),
     )
     account = models.CharField(max_length=10, choices = ACCOUNT_CHOICES, default = 'E')
+
+class DeviceLog(models.Model):
+    date = models.DateTimeField()
+    remote_ip = models.CharField(max_length=40)
+    remote_host = models.CharField(max_length=255)
+
+    levelno = models.IntegerField()
+    levelname = models.CharField(max_length=255)
+
+    name = models.CharField(max_length=255)
+    module = models.CharField(max_length=255)
+    filename = models.CharField(max_length=255)
+    pathname = models.CharField(max_length=255)
+    funcName = models.CharField(max_length=255)
+    lineno = models.IntegerField()
+
+    msg = models.TextField()
+    exc_info = models.TextField(null=True, blank=True)
+    exc_text = models.TextField(null=True, blank=True)
+    args = models.TextField(null=True, blank=True)
+
+    threadName = models.CharField(max_length=255)
+    thread = models.FloatField()
+    created = models.FloatField()
+    process = models.IntegerField()
+    relativeCreated = models.FloatField()
+    msecs = models.FloatField()
+    class Meta:
+        ordering = ('-date',)
+    def __unicode__(self):
+        return '%s: %s' % (self.date, self.formatMessage())
+    def _get_short_msg(self):
+        msg = self.msg[0:60]
+        if len(self.msg) > 60:
+            msg += '...'
+        return msg
+    short_msg = property(_get_short_msg)
+    def formatMessage(self):
+        msg = self.msg
+        if len(self.args) > 2:
+            msg = msg.replace('%d', '%s')
+            msg = msg.replace('%f', '%s')
+            withoutParen = self.args[1:-2]
+            # Split by comma and remove whitespace
+            arg = [x.strip() for x in withoutParen.split(',')]
+            return msg % tuple(arg)
+        return msg
+    formatted_message = property(formatMessage)

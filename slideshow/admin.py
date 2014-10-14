@@ -5,7 +5,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.conf.urls import patterns, url
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.actions import delete_selected
-from admin_buttons import ButtonAdmin
+from adminbuttons.django_admin_buttons import ButtonAdmin
 import math, datetime
 
 class SlidegroupInline(admin.TabularInline):

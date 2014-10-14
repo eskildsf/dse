@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.conf.urls import patterns, url
 from django.core.exceptions import ValidationError
-from admin_buttons import ButtonAdmin
+from adminbuttons.django_admin_buttons import ButtonAdmin
 from django.contrib.admin.actions import delete_selected
 
 class SurveyAdminForm(forms.ModelForm):

@@ -1,10 +1,12 @@
 from django.contrib import admin
 from beer.models import DseUser, Product, Purchase, DeviceLog
-from django.shortcuts import render
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
 import barcode_generator as bg
 from django.utils.html import mark_safe
 from django.contrib.admin import SimpleListFilter
 from adminbuttons.django_admin_buttons import ButtonAdmin
+from django.contrib.admin.actions import delete_selected
 
 class DseUserAdmin(admin.ModelAdmin):
     list_display = ('initials', 'name', 'phone_number', 'department', 'status', 'groups')

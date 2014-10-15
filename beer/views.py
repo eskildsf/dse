@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 from beer.models import DseUser, Product, Purchase, getUsersInLyngby, DeviceLog
 import json
+import time
 import barcode_generator as bg
 from django.conf import settings
 from django.utils import timezone
@@ -128,9 +129,21 @@ class LogMessageForm(forms.ModelForm):
 
 @csrf_exempt
 def deviceLog(request):
-    form = LogMessageForm(request.POST, request=request)
-    if form.is_valid():
-        form.save()
-        return HttpResponse()
-    else:
-        return HttpResponseServerError()
+    if request.method == 'POST':
+        form = LogMessageForm(request.POST, request=request)
+        if form.is_valid():
+            form.save()
+            return HttpResponse()
+        else:
+            return HttpResponseServerError()
+    elif request.method == 'GET':
+        log_records = DeviceLog.objects.order_by('-date')[:25]
+        statements = []
+        for record in log_records:
+            obj = {'date': int(time.mktime(record.date.timetuple())), 'message': record.formatted_message, 'level': record.levelname}
+            statements.append(obj)
+        statements = statements[::-1]
+        return HttpResponse(json.dumps(statements))
+
+def log(request):
+    return render(request, 'beer/log.html')

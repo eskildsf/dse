@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Beer Log</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+function update() {
+  $.ajax({
+    dataType: 'json',
+    type: 'GET',
+    url: '{% url 'beer:logAPI' %}',
+    timeout: 2000,
+    success: function(data) {
+      var result = '';
+      for ( var key in data ) {
+        if ( data.hasOwnProperty(key) ) {
+          m = data[key]['message'];
+          d = new Date(data[key]['date']*1000);
+          d = d.getDate()+'/'+(d.getMonth()+1)+' '+(d.getHours()+1)+':'+("0"+d.getMinutes()).slice(-2)+':'+("0"+d.getSeconds()).slice(-2);
+          l = data[key]['level'];
+          result = result + '<div class="'+l+'"><span class="date">'+d+'</span><span class="message">'+m+'</span></div>';
+        }
+      }
+      $('#box').html(result);
+      window.setTimeout(update, 2000);
+    },
+    error: function (XMLHttpRequest, textStatus, errorThrown) {
+      $("#notice_div").html('Timeout contacting server..');
+      window.setTimeout(update, 60000);
+    }
+});
+}
+$(document).ready(function() {
+    update();
+});
+</script>
+<style>
+.box {border-style:solid;border-width:thin;width:600px;padding:2px;}
+div {margin-top:3px;margin-bottom:3px;}
+.date {width:110px;display:inline-block;}
+.message {width:auto;display:inline-block;}
+div .INFO {background-color:#D8F6CE;}
+div .DEBUG {background-color:white;}
+div .WARNING {background-color:#F5F6CE;}
+div .ERROR {background-color:#F6CECE;}
+</style>
+</head>
+
+<body>
+<div class="box" id="box"></div>
+<div id="notice_div"></div>
+</body>
+</html>

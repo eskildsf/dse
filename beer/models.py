@@ -47,7 +47,7 @@ def barcode_choices():
     return [(e.barcode, e.name) for e in products]
 
 class Purchase(models.Model):
-    created = models.DateTimeField(editable=False)
+    created = models.DateTimeField(auto_now_add=True)
     customer = models.CharField(max_length=255)
     barcode = models.CharField(max_length=255, choices = barcode_choices())
     price = models.IntegerField()

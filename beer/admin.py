@@ -54,7 +54,8 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 
 class PurchaseAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('barcode', 'created', 'customer', 'price', 'amount','account',)
+    list_filter = ('customer', 'account',)
 admin.site.register(Purchase, PurchaseAdmin)
 
 class LevelFilter(SimpleListFilter):

@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^api/accounts/$', views.accounts, name='accounts'),
     url(r'^api/purchase/create/$', views.makePurchase, name='makePurchase'),
     url(r'^api/purchase/delete/$', views.removePurchase, name='removePurchase'),
+    url(r'^api/purchase/latest/(?P<initials>\w{3})/$', views.latestPurchase, name='latestPurchase'),
     url(r'^api/log/$', views.deviceLog, name='logAPI'),
     url(r'^log/$', views.log, name='log'),
 )

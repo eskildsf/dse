@@ -16,7 +16,7 @@ class DseUser(models.Model):
     status = models.CharField(max_length =255, editable = False, db_column = 'status')
     group = models.CharField(max_length =255, editable = False, db_column = 'grupper')
     def initials(self):
-        return self.page[7:10]
+        return self.page[7:10].upper()
     def group_list(self):
         regex = '\\[\\[(.*?)\\]\\]'
         rg = re.compile(regex, re.IGNORECASE|re.DOTALL)
@@ -48,7 +48,7 @@ def barcode_choices():
 
 class Purchase(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    customer = models.CharField(max_length=255)
+    customer = models.CharField(max_length=255, db_index = True)
     barcode = models.CharField(max_length=255, choices = barcode_choices())
     price = models.IntegerField()
     amount = models.IntegerField(default=1)

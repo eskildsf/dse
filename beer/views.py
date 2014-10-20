@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseServerError
 from django import forms
 from django.core.cache import cache
@@ -84,7 +84,7 @@ def makePurchase(request):
         'account': obj.account,
         'id': obj.id,
         }
-        return HttpResponse()
+        return HttpResponse(json.dumps(context))
     return HttpResponseServerError()
 
 class PurchaseDeleteForm(forms.ModelForm):
@@ -101,6 +101,28 @@ def removePurchase(request):
            return HttpResponseServerError()
        return HttpResponse()
     return HttpResponseServerError()
+
+def latestPurchase(request, initials):
+    initials = initials.upper();
+    key = 'Bruger:%s' % initials
+    # Cheap way to check if user exists.
+    member = get_object_or_404(DseUser, page=key)
+    # If no purchases just return
+    if Purchase.objects.filter(customer = initials).count() == 0:
+        return HttpResponse()
+    purchase = Purchase.objects.filter(customer = initials).order_by('-id')[0]
+    product = Product.objects.get(barcode = purchase.barcode)
+    context = {
+    'customer': purchase.customer,
+    'barcode': purchase.barcode,
+    'product': product.name,
+    'price': purchase.price,
+    'amount': purchase.amount,
+    'account': purchase.account,
+    'id': purchase.id,
+    }
+    return HttpResponse(json.dumps(context))
+
 
 class LogMessageForm(forms.ModelForm):
     class Meta:

@@ -20,7 +20,9 @@ function stringToLetters(str) {
     var chars = str.split('');
     var result = '';
     for ( var i = 0; i < str.length; i++ ) {
-        result = result + '<span class="letter">' + chars[i] + '</span>';
+        var c = chars[i];
+        if ( c == ' ' ) { c = '.'; }
+        result = result + '<span class="letter">' + c + '</span>';
     }
     return result;
 }
@@ -32,12 +34,16 @@ function update() {
     url: '{% url 'beer:lcdAPI' %}',
     timeout: 2000,
     success: function(data) {
+      var r = [];
       for ( var key in data ) {
         if ( data.hasOwnProperty(key) ) {
-          tag = "#" + key
-          $(tag).html(stringToLetters(data[key]));
+          tag = "#" + key;
+          var output = stringToLetters(data[key]);
+          r[parseInt(key.substr(4,1))] = '<div id="'+tag+'">'+output+'</div>';
+          $(tag).html(output);
         }
       }
+      $('#txt').val(r.join(''));
       window.setTimeout(update, 2000);
     },
     error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -52,8 +58,8 @@ $(document).ready(function() {
 </script>
 <style>
 .letter {background-color:#99CCFF;color:#000000;margin:2px;padding:2px;font-family:"Courier New", Courier, monospace;font-weight:bold;}
-.box {border-style:solid;border-width:thin;width:282px;padding:2px;}
-div {margin-top:6px;margin-bottom:3px;}
+.box {border-style:solid;border-width:thin;width:280px;padding:2px;}
+.box div {margin-top:6px;margin-bottom:3px;}
 </style>
 </head>
 
@@ -65,5 +71,6 @@ div {margin-top:6px;margin-bottom:3px;}
 <div id="line4"></div>
 </div>
 <div id="notice_div"></div>
+<textarea id="txt" style="width:286px;height:500px;">-</textarea>
 </body>
 </html>

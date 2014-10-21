@@ -87,12 +87,12 @@ def makePurchase(request):
         return HttpResponse(json.dumps(context))
     return HttpResponseServerError()
 
-class PurchaseDeleteForm(forms.ModelForm):
+class PurchaseDeleteForm(forms.Form):
     id = forms.IntegerField()
 
 @csrf_exempt
 def removePurchase(request):
-    form = PurchaseForm(request.POST)
+    form = PurchaseDeleteForm(request.POST)
     if form.is_valid():
        try:
            obj = Purchase.objects.get(id=form.cleaned_data['id'])

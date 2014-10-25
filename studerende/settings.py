@@ -126,7 +126,6 @@ INSTALLED_APPS = (
     'jobbank',
     'beer',
     'adminbuttons',
-    'filtrate',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

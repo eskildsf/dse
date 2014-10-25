@@ -44,11 +44,12 @@ function update() {
         }
       }
       $('#txt').val(r.join(''));
+      $("#notice_div").html('');
       window.setTimeout(update, 2000);
     },
     error: function (XMLHttpRequest, textStatus, errorThrown) {
       $("#notice_div").html('Timeout contacting server..');
-      window.setTimeout(update, 60000);
+      window.setTimeout(update, 20000);
     }
 });
 }

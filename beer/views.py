@@ -26,7 +26,7 @@ def lcdAPI(request):
     if request.method == 'POST':
         form = LCDForm(request.POST, nlines = lines)
         if form.is_valid():
-            timeout = 15
+            timeout = 60
             for key, value in form.cleaned_data.iteritems():
                 cache.set(key, value, timeout)
             return HttpResponse('')

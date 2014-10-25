@@ -1,3 +1,4 @@
+from daterange_filter.filter import DateRangeFilter
 from django.contrib import admin
 from beer.models import DseUser, Product, Purchase, DeviceLog
 from django.core.urlresolvers import reverse
@@ -55,7 +56,7 @@ admin.site.register(Product, ProductAdmin)
 
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('barcode', 'created', 'customer', 'price', 'amount','account',)
-    list_filter = ('customer', 'account',)
+    list_filter = (('created', DateRangeFilter), 'account', 'customer',)
 admin.site.register(Purchase, PurchaseAdmin)
 
 class LevelFilter(SimpleListFilter):

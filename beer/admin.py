@@ -3,11 +3,13 @@ from django.contrib import admin
 from beer.models import DseUser, Product, Purchase, DeviceLog
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 import barcode_generator as bg
 from django.utils.html import mark_safe
 from django.contrib.admin import SimpleListFilter
 from adminbuttons.django_admin_buttons import ButtonAdmin
 from django.contrib.admin.actions import delete_selected
+import unicodecsv as csv
 
 class DseUserAdmin(admin.ModelAdmin):
     list_display = ('initials', 'name', 'phone_number', 'department', 'status', 'groups')
@@ -57,6 +59,34 @@ admin.site.register(Product, ProductAdmin)
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('barcode', 'created', 'customer', 'price', 'amount','account',)
     list_filter = (('created', DateRangeFilter), 'account', 'customer',)
+    actions = ['export']
+    def export(self, request, queryset):
+        header = ['Medlem']
+        # Determine accounts
+        blank = {}
+        for k,v in Purchase.ACCOUNT_CHOICES:
+            blank[k] = 0
+            header += [v]
+        totals = {}
+        # Sum up purchases for each customer
+        # on the available accounts
+        for purchase in queryset:
+            if purchase.customer not in totals:
+                totals[purchase.customer] = blank
+            totals[purchase.customer][purchase.account] += purchase.price*purchase.amount
+        rows = []
+        rows.append(header)
+        # Organize data into a row-format for Excel
+        for k, v in totals.iteritems():
+            item = [k]
+            for kk, vv in Purchase.ACCOUNT_CHOICES:
+                item += [v[kk]]
+            rows.append(item)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="Beer.csv"'
+        writer = csv.writer(response, delimiter=';')
+        writer.writerows(rows)
+        return response
 admin.site.register(Purchase, PurchaseAdmin)
 
 class LevelFilter(SimpleListFilter):

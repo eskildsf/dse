@@ -12,3 +12,4 @@ python-memcached>=1.53
 pyBarcode>=0.7
 git+https://github.com/eskildsf/django-admin-buttons
 django-daterange-filter>=1.0.0
+unicodecsv

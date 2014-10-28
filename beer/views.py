@@ -45,7 +45,7 @@ def lcd(request):
 def barcodes(request):
     members = getUsersInLyngby()
     initials = [(member.initials(), member.initials()) for member in members]
-    barcodes = bg.GenerateBarcodes(initials, 200, 300)
+    barcodes = bg.GenerateBarcodes(initials)
     return HttpResponse(barcodes.render())
 
 def products(request):

@@ -24,7 +24,7 @@ class DseUserAdmin(admin.ModelAdmin):
         opts = self.model._meta
         app_label = opts.app_label
         selected = [(e.initials(), e.initials()) for e in queryset.all()]
-        barcodes = bg.GenerateBarcodes(selected, 200, 300)
+        barcodes = bg.GenerateBarcodes(selected)
         context = {
         'app_label': app_label,
         'opts': opts,
@@ -46,7 +46,7 @@ class ProductAdmin(admin.ModelAdmin):
         opts = self.model._meta
         app_label = opts.app_label
         selected = [(e.barcode, e.name) for e in queryset.all()]
-        barcodes = bg.GenerateBarcodes(selected, 200, 300, 0.4)
+        barcodes = bg.GenerateBarcodes(selected)
         context = {
         'app_label': app_label,
         'opts': opts,
@@ -72,15 +72,15 @@ class PurchaseAdmin(admin.ModelAdmin):
         # on the available accounts
         for purchase in queryset:
             if purchase.customer not in totals:
-                totals[purchase.customer] = blank
+                totals[purchase.customer] = blank.copy()
             totals[purchase.customer][purchase.account] += purchase.price*purchase.amount
         rows = []
         rows.append(header)
         # Organize data into a row-format for Excel
         for k, v in totals.iteritems():
-            item = [k]
+            item = [k] # Item is a list that begins with the customers initials
             for kk, vv in Purchase.ACCOUNT_CHOICES:
-                item += [v[kk]]
+                item += [v[kk]] # Then the totals for each account are added in order
             rows.append(item)
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="Beer.csv"'

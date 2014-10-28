@@ -31,6 +31,22 @@ def renderText(x, y, lineHeight, style, text):
     xml.append('</text>')
     return ''.join(xml)
 
+def renderCustomer(x, y, width, height, style, name, code):
+    result = ''
+    bar = barcode.codex.Code39(code, add_checksum = False)
+    ascii = bar.to_ascii()
+    unitWidth = width/len(ascii)
+    result += '<g transform="translate(%s, %s)" fill="#000">' % (x, y)
+    x = 0
+    for run in re.split('( +)', ascii):
+        runWidth = unitWidth*len(run)
+        if run[0] == 'X':
+            result += '<rect x="%s" y="0" width="%s" height="%s" />' % (x, runWidth, height)
+        x += runWidth
+    result += '<text x="%s" y="%s" xml:space="preserve" style="%s">%s</text>' % (width/2, height*1.8, style, name)
+    result += '</g>\n'
+    return result
+
 class TableAxis:
     def __init__(self, size, count, margin):
         self.size = size
@@ -42,7 +58,7 @@ class TableAxis:
         return self.margin + n*(self.cellSize + self.margin)
 
 class GenerateBarcodes():
-    def __init__(self, data, paperWidth, paperHeight, scale = 1 ):
+    def __init__(self, data, scale = 1):
         self.scale = scale
         self.data = data
         if len(self.data) > 15:
@@ -50,12 +66,12 @@ class GenerateBarcodes():
         else:
             ncol = 2
         nrows = math.ceil(len(self.data)/ncol)
-        paperWidth = 40*ncol*1.4
-        paperHeight = 300/16*nrows*1.4
+        paperWidth = 40*ncol
+        paperHeight = 15*nrows
         self.paperWidth = paperWidth
         self.paperHeight = paperHeight
         self.X = TableAxis(paperWidth, ncol, 10)
-        self.Y = TableAxis(paperHeight, int(math.ceil(len(data) / self.X.count)), 5)
+        self.Y = TableAxis(paperHeight, int(math.ceil(len(data) / self.X.count)), 3)
     def render(self):
         result = '''<svg
    xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +81,8 @@ class GenerateBarcodes():
    width="%smm"
    height="%smm"
    viewBox="0 0 %s %s">
-''' % (self.paperWidth, self.paperHeight, self.paperWidth, self.paperHeight)
+<g transform="scale(%s)">
+''' % (self.paperWidth, self.paperHeight, self.paperWidth, self.paperHeight, self.scale)
         row = 0
         col = 0
         for code, name in self.data:
@@ -73,9 +90,7 @@ class GenerateBarcodes():
             x = self.X(col)
             y = self.Y(row)
             fontSize = unit*self.scale
-            result += renderBarcode(x, y, self.X.cellSize, unit, code)
-            result += renderText(x + self.X.cellSize/2, y + 1.8*unit, 0,
-            "text-anchor: middle; font-size: %spx; font-family: 'HelveticaNeueLT Pro 55 Roman'" % fontSize, name)
+            result += renderCustomer(x, y, self.X.cellSize, unit, "text-anchor: middle; font-size: %spx; font-family: 'HelveticaNeueLT Pro 55 Roman'" % fontSize, name, code)
             row += 1
             if row >= self.Y.count:
                 row = 0

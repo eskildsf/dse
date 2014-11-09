@@ -1,3 +1,4 @@
+#-*- encoding=UTF-8 -*-
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseServerError
@@ -10,6 +11,36 @@ import time
 import barcode_generator as bg
 from django.conf import settings
 from django.utils import timezone
+import smtplib
+from email.mime.text import MIMEText
+
+def sendConfirmationEmail(obj):
+    amount = obj.amount
+    customer = obj.customer
+    product = Product.objects.get(barcode = obj.barcode)
+    product_name = product.name
+    price = product.price
+    account_name = obj.get_account_display()
+
+    gmail_user = 'esf@studerende.dk'
+    gmail_pwd = '***REMOVED***'
+    SUBJECT = u'Køb af %s stk %s til i alt %s kr' % (amount, product_name, int(amount)*int(price))
+    TEXT = SUBJECT + u'\nKøbt på: ' + account_name
+    
+    message = MIMEText(TEXT.encode('utf-8'), _charset='utf-8')
+    message['Subject'] = SUBJECT
+    message['From'] = 'beer@studerende.dk'
+    message['To'] = '%s@studerende.dk' % customer.lower()
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
+        server.login(gmail_user, gmail_pwd)
+        server.sendmail(message['From'], [message['To']], message.as_string())
+        server.close()
+    except Exception as e:
+        return e
+    return True
 
 lines = settings.LCD_NLINES
 
@@ -84,6 +115,7 @@ def makePurchase(request):
         'account': obj.account,
         'id': obj.id,
         }
+        sendConfirmationEmail(obj)
         return HttpResponse(json.dumps(context))
     return HttpResponseServerError()
 

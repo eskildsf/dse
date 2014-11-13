@@ -23,7 +23,7 @@ def sendConfirmationEmail(obj):
     account_name = obj.get_account_display()
 
     gmail_user = 'esf@studerende.dk'
-    gmail_pwd = '***REMOVED***'
+    gmail_pwd = '~~'
     SUBJECT = u'Køb af %s stk %s til i alt %s kr' % (amount, product_name, int(amount)*int(price))
     TEXT = SUBJECT + u'\nKøbt på: ' + account_name
     

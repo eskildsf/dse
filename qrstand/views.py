@@ -14,11 +14,12 @@ def status(request):
     return HttpResponse(json.dumps(context))
 
 def reset(request,stand_sid):
-    stand = get_object_or_404(Stand, pk=stand_sid)
+    stand = get_object_or_404(Stand, sid=stand_sid)
     stand.reset(request)
     return HttpResponse(status=200)
 
 def empty(request,stand_sid,location):
-    stand = get_object_or_404(Stand, pk=stand_sid)
-    stand.empty(request,location)
-    return render(request, 'qrstand/message.html', {'msg': 'Tak for din henvendelse! Vi vil sikre os at standeren fyldes op snarest muligt.'})
+    stand = get_object_or_404(Stand, sid=stand_sid)
+    stand.empty(request, location)
+    context = {'msg': 'Tak for din henvendelse! Vi vil sikre os at standeren fyldes op snarest muligt.'}
+    return render(request, 'qrstand/message.html', context)

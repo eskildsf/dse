@@ -11,6 +11,7 @@ class StandAdmin(ButtonAdmin):
         return redirect(reverse('qrstand:map'))
     mapView.short_description = 'View map'
     list_buttons = [mapView]
+    ordering = ('sid',)
 admin.site.register(Stand, StandAdmin)
 
 class LogAdmin(admin.ModelAdmin):

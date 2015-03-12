@@ -15,7 +15,7 @@ class Stand(models.Model):
         self.log(request, Log.RESET)
     def empty(self, request, location):
         if location == 'U':
-            self.bottom_scan_count=F('bottom_scan_count')+1
+            self.bottom_scan_count = F('bottom_scan_count')+1
         elif location == 'D':
             self.top_scan_count = F('top_scan_count')+1
         self.save()

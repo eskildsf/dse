@@ -8,7 +8,7 @@ admin.site.register(Stand, StandAdmin)
 
 class LogAdmin(admin.ModelAdmin):
     model = Log
-    list_display = ('stand', 'action',)
+    list_display = ('stand', 'action', 'ip')
     list_filter = ('stand', 'action',)
     def get_readonly_fields(self, request, obj=None):
         return list(self.readonly_fields) + \

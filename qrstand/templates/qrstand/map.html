@@ -1,0 +1,115 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Standeropfyldning</title>
+<!-- Apple Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<!-- Google Chrome -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" type="text/css" href="{% static 'qrstand/style.css' %}" />
+<script type="text/javascript" src="http://cdn.jsdelivr.net/snap.svg/0.2.0/snap.svg-min.js"></script>
+</head>
+<body>
+<svg id="svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="768"
+   height="1004">
+</svg>
+<script type="text/javascript">
+var oOK = 0.4;
+var oEmpty = 1.0;
+var cOK = '#80e5ff';
+var cEmpty = '#ff0066';
+
+function Pin(element) {
+    var tspans = element.selectAll('tspan');
+    if (tspans.length != 2) {
+        console.log("Pin(): Bad element!");
+    }
+
+    var topText = tspans[0].node.firstChild;
+    var bottomText = tspans[1].node.firstChild;
+    var circleHalves = element.select('g').selectAll('path');
+    var topHalf = circleHalves[1];
+    var bottomHalf = circleHalves[0];
+
+    function updateHalf(text, half, n) {
+        text.nodeValue = n || '';
+        half.attr({ 'fill': '#fff' }); // Opera needs the color to actually change to work.
+        half.attr({ 'fill': n ? cEmpty : cOK });
+    }
+
+    // Find path inside group (give it as arg).
+
+    this.id = Number(topText.nodeValue);
+    this.set = function (top, bottom) {
+        top = Number(top);
+        bottom = Number(bottom);
+        element.attr({ 'opacity': (top || bottom) ? oEmpty : oOK });
+        updateHalf(topText, topHalf, top);
+        updateHalf(bottomText, bottomHalf, bottom);
+    };
+    this.set(0, 0);
+
+    // TODO: circleHalves.attr({ 'title': 'Stander #' + this.id });
+
+    var that = this;
+    element.click(function () {
+        if (confirm('Nulstil stander ' + that.id + ' (efter fyldning)?')) {
+            Snap.ajax(baseUrl + '/qrstand/reset/' + that.id + '/', function (data) {
+                window.updateMap();
+            });
+        }
+    });
+}
+
+var svg = Snap("#svg");
+var baseUrl = document.location.protocol + '//' + document.location.host;
+
+Snap.load(baseUrl + '/static/qrstand/map.svg', function (pic) {
+    var pinsById = { };
+    pic.selectAll('g').forEach(function (element) {
+        if (element.selectAll('path').length != 1) return;
+        if (element.selectAll('tspan').length != 2) return;
+        if (element.selectAll('use').length != 1) return;
+
+        var use = element.select('use');
+
+        // Instantiate clones so we can manipulate them individually.
+        var href = use.attr('xlink:href');
+        var original = pic.select(href);
+        var xfrm = use.node.getAttribute('transform');
+        var g = svg.g(original.clone().remove())
+            .insertBefore(use)
+            .attr({ 'transform': xfrm });
+        use.remove();
+
+        pin = new Pin(element);
+        if (pin.id) pinsById[pin.id] = pin;
+    });
+    svg.append(pic);
+
+    function update() {
+        Snap.ajax(baseUrl + '/qrstand/status/', function (data) {
+            var data = eval('(' + data.responseText + ')');
+            for (var id in pinsById) {
+                var d = data[id];
+                if (d === undefined) {
+                    console.log('Warning: Backend had no data for stand #' + id);
+                    continue;
+                }
+                pinsById[id].set(d[0], d[1]);
+            }
+        });
+    };
+    setInterval(update, 10000);
+    update();
+    window.updateMap = update;
+});
+</script>
+</body>
+</html>

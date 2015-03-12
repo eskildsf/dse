@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'slideshow',
+    'qrstand',
     'sorl.thumbnail',
     'topnotchdev.files_widget',
     'groupcache',

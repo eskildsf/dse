@@ -1,9 +1,16 @@
 from django.contrib import admin
+from adminbuttons.django_admin_buttons import ButtonAdmin
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from qrstand.models import Stand, Log
 
-class StandAdmin(admin.ModelAdmin):
+class StandAdmin(ButtonAdmin):
     model = Stand
     list_display = ('sid', 'top_scan_count', 'bottom_scan_count',)
+    def mapView(self, request):
+        return redirect(reverse('qrstand:map'))
+    mapView.short_description = 'View map'
+    list_buttons = [mapView]
 admin.site.register(Stand, StandAdmin)
 
 class LogAdmin(admin.ModelAdmin):

@@ -1,0 +1,12 @@
+html, body, svg {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: block;
+}
+html {
+    background: #000;
+}
+tspan {
+    font: 9pt sans-serif;
+}

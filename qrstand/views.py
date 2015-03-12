@@ -21,4 +21,4 @@ def reset(request,stand_sid):
 def empty(request,stand_sid,location):
     stand = get_object_or_404(Stand, pk=stand_sid)
     stand.empty(request,location)
-    return HttpResponse(status=200)
+    return render(request, 'qrstand/message.html', {'msg': 'Tak for din henvendelse! Vi vil sikre os at standeren fyldes op snarest muligt.'})

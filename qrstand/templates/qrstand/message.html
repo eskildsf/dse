@@ -1,5 +1,11 @@
+{% load staticfiles %}
 <html>
+<head>
+<meta name="viewport" content="width=300px, initial-scale=1">
+</head>
 <body>
-{{ msg }}
+<img src="{% static 'qrstand/dse_logo_positiv.svg' %}" width="100%" />
+<br /><br />
+<h3 style="font-family: Helvetica, Verdana, san-serif;">{{ msg }}</h3>
 </body>
 </html>

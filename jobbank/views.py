@@ -25,7 +25,7 @@ def index(request):
                 else:
                     context = {'error': "The printer "+settings.JOBBANK_PRINTER+" doesn't exist.",}
             else:
-                context = {'error': 'The advert does not exist. Try again.'+path,}
+                context = {'error': 'The advert does not exist. Try again.',} #+path
     return render(request, 'jobbank/index.html', context)
 
 def printing(request):

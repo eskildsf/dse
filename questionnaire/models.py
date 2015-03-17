@@ -102,15 +102,9 @@ def check_active_survey_exists(sender, instance, using, **kwargs):
 
 class Response(models.Model):
     survey = models.ForeignKey(Survey)
-    created = models.DateTimeField(editable=False)
+    created = models.DateTimeField(default=timezone.now,editable=False)
     def __unicode__(self):
         return self.survey.name+' on the '+unicode(self.created.replace(microsecond=0))
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.created = today()
-        else:
-            pass
-        super(Response, self).save(*args, **kwargs)
     def getQuestionsAndAnswers(self):
         if hasattr(self, 'c_questions'):
             questions = self.c_questions
@@ -158,7 +152,7 @@ class Answer(models.Model):
         ordering = ['question_id']
 
 class Participant(models.Model):
-    created = models.DateTimeField(editable=False)
+    created = models.DateTimeField(default=timezone.now,editable=False)
     phonehash = models.CharField(max_length=200, verbose_name = 'Tlf hash', editable = False, blank = True)
     name = models.CharField(max_length=200, verbose_name = 'Name', editable = False, blank = True)
     def __unicode__(self):
@@ -166,12 +160,6 @@ class Participant(models.Model):
             return self.phonehash
         else:
             return self.name
-    def save(self, *args, **kwargs):
-        if not self.id:
-            if hasattr(self, 'phone'):
-                self.phonehash = hashlib.sha1(str(self.phone)).hexdigest()
-            self.created = today()
-        super(Participant, self).save(*args, **kwargs)
     def doesParticipantExist(self, phone, name):
         phonehash = hashlib.sha1(str(phone)).hexdigest()
         return Participant.objects.filter(phonehash=phonehash).count() is not 0        
@@ -181,7 +169,7 @@ class Participant(models.Model):
 
 class TextMessage(models.Model):
     participant = models.ForeignKey(Participant)
-    created = models.DateTimeField(editable=False)
+    created = models.DateTimeField(default=timezone.now,editable=False)
     uuid = models.CharField(max_length=200, verbose_name = 'sms1919 ID', editable = False, db_index = True)
     code = models.CharField(max_length=200, verbose_name = 'Code', editable = False, db_index = True)
     active = models.BooleanField(default=True)
@@ -194,7 +182,7 @@ class TextMessage(models.Model):
         self.save()
 
 class TextMessageLog(models.Model):
-    created = models.DateTimeField(editable=False)
+    created = models.DateTimeField(default=timezone.now,editable=False)
     text_message = models.ForeignKey(TextMessage)
     message_id = models.SmallIntegerField()
     def message(self):

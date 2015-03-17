@@ -6,7 +6,8 @@ from django.conf import settings
 import os
 
 class PrintAdvertForm(forms.Form):
-    id = forms.IntegerField(max_value = 1000, min_value = 0)
+    id = forms.CharField(max_length=10)
+    #id = forms.IntegerField(max_value = 1000, min_value = 0)
 
 def index(request):
     context = {}

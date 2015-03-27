@@ -71,12 +71,18 @@ def index(request):
 class Question():
     def __init__(self, id, question):
         self.id = id
-        self.question = question.encode('latin1')
+        try:
+            self.question = question.encode('latin1')
+        except:
+            self.question = question.encode('utf-8')
         self.answers = []
         self.subquestions = []
     def answer(self, answer):
         if isinstance(answer, basestring):
-            answer = answer.encode('latin1')
+            try:
+                answer = answer.encode('latin1')
+            except: 
+                answer = answer.encode('utf-8')
         self.answers.append(answer)
     def subquestion(self, obj):
         self.subquestions.append(obj)
@@ -112,6 +118,7 @@ def export(request, survey_id):
     
     # Attach answers from responses to questions
     for response in responses:
+        questionsToAnswer = {k: 0 for k in questions.keys()}
         for i, value in response.iteritems():
             type, question, answer = value
             # Convert ID strings to lists of IDs
@@ -128,8 +135,12 @@ def export(request, survey_id):
                         q.answer(1)
                     else:
                         q.answer(0)
+                    del questionsToAnswer[q.id]
             else:
                 questions[i].answer(answer)
+                del questionsToAnswer[i]
+        for e in questionsToAnswer.keys():
+            questions[e].answer('')
 
     # Prepare a CSV file for download.
     response = HttpResponse(content_type='text/csv')
@@ -199,7 +210,7 @@ def survey(request, survey_id):
             sms_id = soup.result.messageid.contents
             text_message.uuid = "".join(unicode(item) for item in sms_id)
             text_message.save()
-        context = {'name': survey.name, 'confirmation': mark_safe(confirmation), 'receipt': receipt}
+        context = {'name': survey.name, 'confirmation': mark_safe(confirmation), 'receipt': receipt, 'redirect': reverse('questionnaire:survey', kwargs={'survey_id': survey_id})}
         return render(request, 'questionnaire/confirmation.html', context)
 
     introduction = survey.getIntroduction()

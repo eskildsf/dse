@@ -7,6 +7,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <title>{{ name }}</title>
 <link rel="stylesheet" type="text/css" href="{% static 'questionnaire/style.css' %}" />
+{% if redirect %}<META http-equiv="refresh" content="5;URL={{ redirect }}">{% endif %}
 </head>
 <body>
 {% block contents %}

@@ -10,7 +10,7 @@ def map(request):
 
 def status(request):
     stands = Stand.objects.all()
-    context = {stand.sid: [stand.top_scan_count, stand.bottom_scan_count] for stand in stands}
+    context = {stand.sid: [stand.bottom_scan_count, stand.top_scan_count] for stand in stands}
     return HttpResponse(json.dumps(context))
 
 def reset(request,stand_sid):

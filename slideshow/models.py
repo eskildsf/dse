@@ -9,7 +9,7 @@ from django.utils import timezone
 
 class Show(models.Model):
     name = models.CharField(max_length=200, verbose_name = 'Title')
-    last_modified = models.DateTimeField(auto_now_add=True,auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
     last_sync = models.BigIntegerField(default=1)
     def __unicode__(self):
         return self.name
@@ -45,7 +45,7 @@ class SlideGroup(models.Model):
     series = models.ForeignKey(Show)
     photos = files_widget.ImagesField(verbose_name = 'Slides')
     duration = models.SmallIntegerField(default=5, verbose_name = 'Duration / s')
-    last_modified = models.DateTimeField(auto_now_add=True,auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
     def __unicode__(self):
         return u''
 
@@ -63,11 +63,11 @@ class Device(models.Model):
         hashed = hashlib.sha224(str(randomBits)).hexdigest()
         return hashed    
     name = models.CharField(max_length=200, verbose_name = 'Device name')
-    last_modified = models.DateTimeField(auto_now_add=True,auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
     active_show = models.ForeignKey(Show, on_delete=models.PROTECT)
     api_key = models.CharField(max_length=200, default = generateApiKey)
     resolution = models.ForeignKey(Resolution, on_delete = models.PROTECT)
-    last_ping = models.DateTimeField(auto_now_add=True, blank=True)
+    last_ping = models.DateTimeField(auto_now_add=True)
     def __unicode__(self):
         return self.name
     def getResolution(self):

@@ -101,7 +101,7 @@ Snap.load(baseUrl + '/static/qrstand/map.svg', function (pic) {
                     console.log('Warning: Backend had no data for stand #' + id);
                     continue;
                 }
-                pinsById[id].set(d[0], d[1]);
+                pinsById[id].set(d[1], d[0]);
             }
         });
     };

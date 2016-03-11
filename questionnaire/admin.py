@@ -82,13 +82,13 @@ class SurveyAdmin(ButtonAdmin):
         return buttons
     def get_urls(self):
         urls = super(SurveyAdmin, self).get_urls()
-        newUrls = patterns('',
+        newUrls = [
                            url(
                                r'set_active/(?P<surveyId>\d+)/$',
                                self.admin_site.admin_view(self.setActive),
                                name = 'setActive',
                                ),
-                  )
+                  ]
         return newUrls+urls
 
 admin.site.register(Survey, SurveyAdmin)
@@ -166,12 +166,12 @@ class TextMessageAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(TextMessageAdmin, self).get_urls()
-        newUrls = patterns('',
+        newUrls = [
                            url(
                                r'set_inactive/(?P<textMessageId>\d+)/$',
                                self.admin_site.admin_view(self.setInactive),
                                name = 'setInactive',
                                ),
-                  )
+                  ]
         return newUrls+urls
 admin.site.register(TextMessage, TextMessageAdmin)

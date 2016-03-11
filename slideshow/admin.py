@@ -9,7 +9,7 @@ from adminbuttons.django_admin_buttons import ButtonAdmin
 import math, datetime
 
 class SlidegroupInline(admin.TabularInline):
-    verbose_name = "slide group"
+    description = "slide group"
     model = SlideGroup
     extra = 1
 
@@ -47,7 +47,7 @@ class ShowAdmin(admin.ModelAdmin):
         return redirect(reverse('admin:slideshow_show_changelist'))
     def get_urls(self):
         urls = super(ShowAdmin, self).get_urls()
-        newUrls = patterns('',
+        newUrls = [
                            url(
                                r'set_active/(?P<showId>\d+)/$',
                                self.admin_site.admin_view(self.setActiveOnAll),
@@ -58,7 +58,7 @@ class ShowAdmin(admin.ModelAdmin):
                                self.admin_site.admin_view(self.sync),
                                name = 'sync',
                                ),
-                  )
+                  ]
         return newUrls+urls
 admin.site.register(Show, ShowAdmin)
 

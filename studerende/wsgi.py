@@ -15,7 +15,7 @@ framework.
 """
 import os, sys
 #sys.path.append('/home/eskild/http/Slideshow')
-#sys.path.append('/data/http/Slideshow/src/studerende')
+sys.path.append('/data/http/Slideshow/src/studerende')
 sys.path.append(os.path.dirname(__file__))
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks

@@ -3,21 +3,7 @@
 {% if user.is_authenticated %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <style>
-.header {
-    text-align: justify; 
-}
- .header:after{
-    content: '';
-    display: inline-block;
-    width: 100%;
-    height: 0;
-    font-size:0;
-    line-height:0;
-}
-h1 {
-    display: inline-block;
-}
-a:visited{
+a:visited {
   color:blue;
 }
 </style>
@@ -46,10 +32,7 @@ $( document ).ready(function() {
 -->
 </script>
 <div id="page">
-<div class="header">
-<h1>{{ name }}</h1>
-<h1><a href="">Reset</a></h1>
-</div>
+<h1 style="text-align:left;">{{ name }}<a style="float:right;" href="">Reset</a></h1>
 {{ introduction }}
 <form action="" method="post">{% csrf_token %}
 {% for field in form %}

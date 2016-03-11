@@ -3,9 +3,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from beer import views
+from . import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^api/lcd/$', views.lcdAPI, name='lcdAPI'),
     url(r'^barcodes/$', views.barcodes, name='barcodes'),
     url(r'^lcd/$', views.lcd, name='lcd'),
@@ -17,5 +17,4 @@ urlpatterns = patterns('',
     url(r'^api/purchase/latest/(?P<initials>\w{3})/$', views.latestPurchase, name='latestPurchase'),
     url(r'^api/log/$', views.deviceLog, name='logAPI'),
     url(r'^log/$', views.log, name='log'),
-)
-
+]

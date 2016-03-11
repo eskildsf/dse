@@ -1,13 +1,8 @@
-from django.conf.urls import patterns, url, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.conf.urls import patterns, url
+from . import views
 
-from slideshow import views
-
-urlpatterns = patterns('',
-    url(r'^api/json/(?P<apiKey>.*)/$', views.slideshowJsonByApiKey, name='slideshowAjaxByApiKey'),
-    url(r'^api/log/(?P<apiKey>.*)/$', views.deviceLog, name='log'),
+urlpatterns = [#patterns('slideshow.views',
+    url(r'^api/json/(?P<apiKey>.*)/$', views.slideshowJsonByApiKey, name='slideshowJsonByApiKey'),
+    url(r'^api/log/(?P<apiKey>.*)/$', views.deviceLog, name='deviceLog'),
     url(r'^api/devices/$', views.devices, name='devices'),
-)
+]#)
